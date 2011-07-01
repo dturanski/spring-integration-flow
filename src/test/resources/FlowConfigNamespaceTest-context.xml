@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:int-flow="http://www.springframework.org/schema/integration/flow"
+	xsi:schemaLocation="http://www.springframework.org/schema/integration/flow http://www.springframework.org/schema/integration/flow/spring-integration-flow-2.0.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+	<int-flow:flow-configuration>
+
+        
+		<int-flow:port-mapping>
+			<int-flow:input-port name="input" channel="subflow-input">
+				<int-flow:description></int-flow:description>
+			</int-flow:input-port>
+			<int-flow:output-port name="output" channel="subflow-output">
+				<int-flow:description></int-flow:description>
+			</int-flow:output-port>
+		</int-flow:port-mapping>
+
+		<int-flow:port-mapping-ref bean="portConfig1" />
+
+		<int-flow:port-mapping>
+			<int-flow:input-port name="input2" channel="subflow-input2">
+				<int-flow:description></int-flow:description>
+			</int-flow:input-port>
+			<int-flow:output-port name="output2" channel="subflow-output2">
+				<int-flow:description></int-flow:description>
+			</int-flow:output-port>
+		</int-flow:port-mapping>
+
+		<int-flow:port-mapping-ref bean="portConfig2" />
+
+	</int-flow:flow-configuration>
+
+	<int-flow:port-mapping>
+		<int-flow:input-port name="input2" channel="subflow-input2" />
+		<int-flow:output-port name="output2" channel="subflow-output2"/>
+	</int-flow:port-mapping>
+</beans>

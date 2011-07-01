@@ -1,0 +1,44 @@
+Goals
+---------
+This component is exploring mechanisms to encapsulate a referenced Spring Integration message flow as a component. 
+A flow is a Spring Integration message flow intended for reuse. A flow is accessed via logical "ports" which map 
+to internal channels. 
+
+A flow may expose multiple inputs and multiple outputs. A port mapping is defined for each input and has multiple
+outputs associated with it. See src/test/resources/META-INF/spring/integration/flows/subflow1-context.xml, for example.
+
+Generally, a message flow may behave like a router. For example, a flow may define
+a primary output and a discard output. Additionally, it may act like a delayer, providing no immediate response. Or it 
+could act as an outbound channel adapter, providing no output. 
+
+The goal is to support these, and possibly other semantics. Additional goals are:
+- Encapsulation: the flow channels, and component should not be included the consumer application context. The consumer need
+not know how the flow is configured (i.e, it is contained in a jar). 
+- Configuration: The flow may define optional or required properties to be provided by the consumer. The flow may define optional 
+or required bean definitions provided by the consumer (e.g, a generic XML processor may require an OXM marshaller)
+ - The flow should be self describing, in terms of ports, properties, and beans it exposes
+ - It should be easy to implement or wrap an existing configuration as a flow and provide a better option than simple importing
+ a spring configuration file and sending a message to one of its input channels
+
+Usage
+-------
+The flow consumer instantiates a flow and defines one or more flow outbound gateways for each input port:
+
+<int-flow:flow id="subflow1"/>
+
+<int-flow:outbound-gateway flow="subflow1" input-channel="another-input" 
+     output-channel="another-output" input-port="gateway-input"/>  
+ 
+A message sent on the input-channel is delegated to the flow. The message on the output-channel is a response from one of the output 
+ports. The output port name is contained in the response header 'flow.output.port' 
+ 
+Implementation
+----------------     
+The flow element creates a Flow instance (eventually, configured with properties, referenced beans, etc.) The flow id is used to derive the flow's
+spring bean definition file by convention. This bean definition file will be used to create a standalone application context which must provide a 
+FlowConfiguration containing the metadata about the exposed ports, beans, and properties. 
+
+Currently, all exposed outputs are bridged to a PublishSubscribeChannel which acts as a single 'flowOutputChannel'. 
+Each flow outbound gateway instance is backed by a FlowMessageHandler that bridges the 'flow output channel to its own QueueChannel. This is 
+analogous to a JMS topic. Each flow message handler sends the request message to the flow input channel corresponding to the input port and checks 
+its queue for a response. A correlation id is used to match the response to the request.

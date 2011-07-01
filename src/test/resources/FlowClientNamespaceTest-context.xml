@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:int="http://www.springframework.org/schema/integration"
+	xmlns:int-flow="http://www.springframework.org/schema/integration/flow"
+	xsi:schemaLocation="http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd
+		http://www.springframework.org/schema/integration/flow http://www.springframework.org/schema/integration/flow/spring-integration-flow-2.0.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<!-- Instantiate the flow (folded into its own application context) -->
+	<int-flow:flow id="subflow1" />
+     
+     <int-flow:outbound-gateway flow="subflow1" input-channel="another-input" 
+     output-channel="another-output" input-port="gateway-input"/> 
+    
+    <int:chain input-channel="another-input2"  output-channel="another-output2">
+       <int-flow:outbound-gateway flow="subflow1" input-port="gateway-input"/>
+     </int:chain> 
+      
+	<int:channel id="another-output">
+		<int:queue />
+	</int:channel>
+	
+
+	<int:channel id="another-output2">
+		<int:queue />
+	</int:channel>
+
+</beans>

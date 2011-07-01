@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns="http://www.springframework.org/schema/integration/flow"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema"  
+	xmlns:tool="http://www.springframework.org/schema/tool"	
+	targetNamespace="http://www.springframework.org/schema/integration/flow"
+	elementFormDefault="qualified" attributeFormDefault="unqualified">
+    
+    <xsd:import namespace="http://www.springframework.org/schema/tool" />
+    
+	<xsd:element name="flow">
+		<xsd:annotation>
+			<xsd:documentation><![CDATA[
+				Defines an integration flow
+			]]></xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:attribute name="id" type="xsd:string" use="required">
+				<xsd:annotation>
+					<xsd:documentation><![CDATA[
+				The name of the referenced flow
+			]]></xsd:documentation>
+				</xsd:annotation>
+			</xsd:attribute>
+			<xsd:attribute name="properties" type="xsd:string" use="optional">
+				<xsd:annotation>
+					<xsd:documentation><![CDATA[
+				An optional reference to a properties object containing optional or required properties provided to configure the flow 
+			]]></xsd:documentation>
+				</xsd:annotation>
+			</xsd:attribute>
+			<xsd:attribute name="referenced-bean-locations" type="xsd:string"
+				use="optional">
+				<xsd:annotation>
+					<xsd:documentation><![CDATA[
+				An optional list of config locations containing optional or required bean definitions referenced by the flow
+			]]></xsd:documentation>
+				</xsd:annotation>
+			</xsd:attribute>
+			<xsd:attribute name="help" type="xsd:boolean"
+				use="optional">
+				<xsd:annotation>
+					<xsd:documentation><![CDATA[
+				Display port configuration discription
+			]]></xsd:documentation>
+				</xsd:annotation>
+			</xsd:attribute>
+		</xsd:complexType>
+	</xsd:element>
+
+	 
+	
+	<xsd:element name="outbound-gateway">
+		<xsd:complexType>
+			   <xsd:attribute name="input-channel" type="xsd:string" use="optional">
+                        <xsd:annotation>
+                            <xsd:appinfo>
+                                <tool:annotation kind="ref">
+                                    <tool:expected-type type="org.springframework.integration.core.MessageChannel"/>
+                                </tool:annotation>
+                            </xsd:appinfo>
+                        </xsd:annotation>
+                    </xsd:attribute>
+                    <xsd:attribute name="output-channel" type="xsd:string">
+                        <xsd:annotation>
+                            <xsd:appinfo>
+                                <tool:annotation kind="ref">
+                                    <tool:expected-type type="org.springframework.integration.core.MessageChannel"/>
+                                </tool:annotation>
+                            </xsd:appinfo>
+                        </xsd:annotation>
+                    </xsd:attribute>
+			<xsd:attribute name="flow" type="xsd:string" use="required">
+			 <xsd:annotation>
+                            <xsd:documentation>
+                                <![CDATA[
+				The name of the referenced flow]]>
+                            </xsd:documentation>
+                        </xsd:annotation>
+			</xsd:attribute>
+			<xsd:attribute name="input-port" type="xsd:string" use="optional">
+			 <xsd:annotation>
+                            <xsd:documentation>
+                                <![CDATA[
+				The name of the input port]]>
+                            </xsd:documentation>
+                        </xsd:annotation>
+			</xsd:attribute>
+		</xsd:complexType>
+	</xsd:element>
+	 
+	<xsd:element name="flow-configuration">
+		<xsd:annotation>
+			<xsd:documentation><![CDATA[
+				Defines a flow configuration (metadata exposed by the flow provider)
+			]]></xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:choice minOccurs="1" maxOccurs="unbounded">
+					<xsd:element name="port-mapping-ref">
+						<xsd:complexType>
+							<xsd:attribute name="bean" type="xsd:string" />
+						</xsd:complexType>
+					</xsd:element>
+				 
+					<xsd:element name="port-mapping" type="PortMappingType" /> 
+				</xsd:choice>
+				<xsd:element name="referenced-bean" minOccurs="0" maxOccurs="unbounded" type="NamedResourceType"/>
+				<xsd:element name="referenced-property" minOccurs="0" maxOccurs="unbounded" type="NamedResourceType"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+   <xsd:element name="port-mapping" type="PortMappingType">
+       <xsd:annotation>
+			<xsd:documentation><![CDATA[
+				Defines an integration flow port mapping configuraiotn
+			]]></xsd:documentation>
+		</xsd:annotation>
+   </xsd:element>
+
+	<xsd:complexType name="BasePortType">
+		<xsd:annotation>
+			<xsd:documentation><![CDATA[
+				Defines an integration flow port binding
+			]]></xsd:documentation>
+		</xsd:annotation>
+		<xsd:attribute name="name" type="xsd:string" use="required" />
+		<xsd:attribute name="channel" type="xsd:string" use="required" />
+	</xsd:complexType>
+
+	<xsd:complexType name="FlowPortType">
+		<xsd:annotation>
+			<xsd:documentation><![CDATA[
+				Defines an integration flow port binding
+			]]></xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexContent>
+			<xsd:extension base="BasePortType">
+				<xsd:sequence>
+					<xsd:element name="description" minOccurs="0"
+						maxOccurs="1" type="xsd:string" />
+				</xsd:sequence> 
+			</xsd:extension>
+		</xsd:complexContent>
+	</xsd:complexType>
+	
+	<xsd:complexType name="FlowOutputPortType">
+		<xsd:annotation>
+			<xsd:documentation><![CDATA[
+				Defines an integration flow output port binding
+			]]></xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexContent>
+			<xsd:extension base="FlowPortType">				 
+			</xsd:extension>
+		</xsd:complexContent>
+	</xsd:complexType>
+
+	<xsd:complexType name="PortMappingType">
+		<xsd:sequence>
+			<xsd:element name="input-port" minOccurs="1" maxOccurs="1"
+				nillable="false" type="FlowPortType">
+			</xsd:element>
+			<xsd:element name="output-port" minOccurs="0" maxOccurs="unbounded" type="FlowOutputPortType"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	
+    <xsd:complexType name="NamedResourceType">
+		<xsd:sequence>
+			<xsd:element name="description" type="xsd:string" minOccurs="0"/>
+		</xsd:sequence>
+		
+		<xsd:attribute name="required" type="xsd:boolean" default="false">
+		</xsd:attribute>
+		<xsd:attribute name="id" use="required" type="xsd:ID">
+		</xsd:attribute>
+	</xsd:complexType>
+	
+</xsd:schema>
