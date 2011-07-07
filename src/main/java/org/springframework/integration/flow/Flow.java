@@ -8,9 +8,8 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.beans.factory.support.BeanDefinitionRegistry;
-import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.env.MutablePropertySources;
@@ -19,6 +18,7 @@ import org.springframework.core.env.PropertySource;
 import org.springframework.integration.MessageChannel;
 import org.springframework.integration.channel.AbstractMessageChannel;
 import org.springframework.integration.channel.PublishSubscribeChannel;
+import org.springframework.integration.core.SubscribableChannel;
 import org.springframework.integration.flow.config.FlowUtils;
 import org.springframework.integration.flow.interceptor.FlowInterceptor;
 import org.springframework.integration.support.channel.BeanFactoryChannelResolver;
@@ -33,11 +33,13 @@ import org.springframework.util.StringUtils;
  * @author David Turanski
  * 
  */
-public class Flow implements InitializingBean, BeanNameAware, ChannelResolver, BeanDefinitionRegistryPostProcessor {
+public class Flow implements InitializingBean, BeanNameAware, ChannelResolver, ApplicationContextAware {
 
-	protected Log logger = LogFactory.getLog(getClass());
+	private static Log logger = LogFactory.getLog(Flow.class);
 
 	private volatile ConfigurableApplicationContext flowContext;
+	
+	private ConfigurableApplicationContext applicationContext;
 
 	private volatile FlowConfiguration flowConfiguration;
 
@@ -80,12 +82,12 @@ public class Flow implements InitializingBean, BeanNameAware, ChannelResolver, B
 
 		Assert.notEmpty(configLocations, "configLocations cannot be empty");
 
-		flowContext = new ClassPathXmlApplicationContext(configLocations);
+		flowContext = new ClassPathXmlApplicationContext(configLocations, applicationContext);
 
 		this.flowConfiguration = flowContext.getBean(FlowConfiguration.class);
 		Assert.notNull(flowConfiguration, "flow context does not contain a flow configuration");
 
-		if (help) {
+		if (this.help) {
 			System.out.println(displayFlowConfiguration());
 		}
 
@@ -94,6 +96,10 @@ public class Flow implements InitializingBean, BeanNameAware, ChannelResolver, B
 		this.flowChannelResolver = new BeanFactoryChannelResolver(flowContext);
 
 		addReferencedProperties();
+		
+		bridgeMessagingPorts();
+		
+		
 
 	}
 
@@ -136,17 +142,7 @@ public class Flow implements InitializingBean, BeanNameAware, ChannelResolver, B
 		return flowChannelResolver.resolveChannelName(channelName);
 	}
 
-	@Override
-	public void postProcessBeanFactory(ConfigurableListableBeanFactory arg0) throws BeansException {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
-		bridgeMessagingPorts(registry);
-
-	}
+	 
 
 	/**
 	 * 
@@ -200,7 +196,8 @@ public class Flow implements InitializingBean, BeanNameAware, ChannelResolver, B
 			}
 			MutablePropertySources propertySources = flowContext.getEnvironment().getPropertySources();
 			propertySources.addLast(propertySource);
-			flowContext.refresh();
+			
+			this.flowContext.refresh();	
 		}
 
 	}
@@ -210,7 +207,7 @@ public class Flow implements InitializingBean, BeanNameAware, ChannelResolver, B
 				"flow configuration contains no port configurations");
 	}
 
-	private void bridgeMessagingPorts(BeanDefinitionRegistry registry) {
+	private void bridgeMessagingPorts() {
 
 		/*
 		 * create a bridge for each target output port to the flow outputChannel
@@ -219,14 +216,20 @@ public class Flow implements InitializingBean, BeanNameAware, ChannelResolver, B
 				.getPortConfigurations()) {
 			for (String outputPort : targetPortConfiguration.getOutputPortNames()) {
 				String targetOutputChannelName = (String) targetPortConfiguration.getOutputChannel(outputPort);
-				AbstractMessageChannel inputChannel = (AbstractMessageChannel) resolveChannelName(targetOutputChannelName);
+				SubscribableChannel inputChannel = (SubscribableChannel) resolveChannelName(targetOutputChannelName);
 
-				inputChannel.addInterceptor(new FlowInterceptor(outputPort));
+				((AbstractMessageChannel)inputChannel).addInterceptor(new FlowInterceptor(outputPort));
 
 				logger.debug("creating output bridge on [" + outputPort + "] inputChannelName = ["
 						+ targetOutputChannelName + "] outputChannel = [" + this.flowOutputChannel + "]");
-				FlowUtils.createBridge(inputChannel, this.flowOutputChannel, registry);
+				FlowUtils.bridgeChannels(inputChannel, this.flowOutputChannel);
 			}
 		}
 	}
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+       this.applicationContext = (ConfigurableApplicationContext) applicationContext;
+        
+    }
 }

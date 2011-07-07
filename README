@@ -22,7 +22,8 @@ or required bean definitions provided by the consumer (e.g, a generic XML proces
 
 Usage
 -------
-The flow consumer instantiates a flow and defines one or more flow outbound gateways for each input port:
+The flow consumer instantiates a flow and defines one or more flow outbound-gateways associated to an input port:
+
 
 <int-flow:flow id="subflow1"/>
 
@@ -31,14 +32,27 @@ The flow consumer instantiates a flow and defines one or more flow outbound gate
  
 A message sent on the input-channel is delegated to the flow. The message on the output-channel is a response from one of the output 
 ports. The output port name is contained in the response header 'flow.output.port' 
- 
-Implementation
-----------------     
-The flow element creates a Flow instance (eventually, configured with properties, referenced beans, etc.) The flow id is used to derive the flow's
-spring bean definition file by convention. This bean definition file will be used to create a standalone application context which must provide a 
-FlowConfiguration containing the metadata about the exposed ports, beans, and properties. 
 
-Currently, all exposed outputs are bridged to a PublishSubscribeChannel which acts as a single 'flowOutputChannel'. 
-Each flow outbound gateway instance is backed by a FlowMessageHandler that bridges the 'flow output channel to its own QueueChannel. This is 
-analogous to a JMS topic. Each flow message handler sends the request message to the flow input channel corresponding to the input port and checks 
-its queue for a response. A correlation id is used to match the response to the request.
+The input-port attribute is optional -- if the flow defines a single input port it will be mapped by default.
+
+The flow also supports a properties attribute and a referenced-bean-locations attribute used to inject properties and a list of configuration files respectively. 
+Additionally any bean definition may be or property in the parent context may be inherited by the flow.
+
+ 
+Flow Implementation
+-------------------     
+The flow element creates a Flow instance (eventually, configured with properties, referenced beans, etc.) The flow id is used to derive the flow's
+spring bean definition file by convention (META-INF/spring/flows/[flow-id]-context.xml). This bean definition file and any referenced bean locations 
+will be used to create a child application context. The flow context must provide a FlowConfiguration containing the metadata describing the input ports, 
+output ports, and referenced beans and properties. 
+
+Currently, all defined outputs are bridged to a PublishSubscribeChannel which acts as a single 'flowOutputChannel'. 
+Each flow outbound-gateway instance is backed by a FlowMessageHandler that bridges the 'flow output channel' to its own QueueChannel. This emulates
+a JMS topic. Each flow message handler sends the request message to the flow input channel corresponding to the input port and checks 
+its queue for a response. A correlation id (flow conversation id) is used to correlate the response to the request.
+
+If the flow message handler catches an exception, it will convert it to an ErrorMessage response. Alternately, the flow can map its errorChannel to an output port
+
+The response message contains a 'flow.output.port' header indicating which output port provided the response.
+
+Currently flow input and output channels must inherit from SubscribableChannel, e.g., DirectChannel or PublishSubscribe channel. 

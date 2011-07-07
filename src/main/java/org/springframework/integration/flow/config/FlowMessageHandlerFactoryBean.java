@@ -15,11 +15,9 @@
  */
 package org.springframework.integration.flow.config;
 
-import org.springframework.beans.BeansException;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.beans.factory.support.BeanDefinitionRegistry;
-import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import org.springframework.integration.MessageChannel;
 import org.springframework.integration.config.AbstractSimpleMessageHandlerFactoryBean;
 import org.springframework.integration.core.MessageHandler;
@@ -35,8 +33,10 @@ import org.springframework.util.Assert;
  * 
  */
 public class FlowMessageHandlerFactoryBean extends AbstractSimpleMessageHandlerFactoryBean implements
-		InitializingBean, BeanDefinitionRegistryPostProcessor {
+		InitializingBean {
 
+    private static Log logger = LogFactory.getLog(FlowMessageHandlerFactoryBean.class);
+    
 	private volatile Flow flow;
 
 	private volatile String inputPortName;
@@ -73,22 +73,14 @@ public class FlowMessageHandlerFactoryBean extends AbstractSimpleMessageHandlerF
 		this.flowReceiveChannel = flowOutputChannel;
 	}
 
-	@Override
-	public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
-		bridgeMessagingPorts(registry);
-
-	}
-
+ 
  
 
-	private void bridgeMessagingPorts(BeanDefinitionRegistry registry) {
-		FlowUtils.createBridge(this.flow.getFlowOutputChannel(), this.flowReceiveChannel, registry);
+	private void bridgeMessagingPorts( ) {
+	     logger.debug("creating handler bridge on  inputChannelName = ["
+	                + flow.getFlowOutputChannel() + "] outputChannel = [" + this.flowReceiveChannel + "]");
+	        
+		FlowUtils.bridgeChannels(this.flow.getFlowOutputChannel(), this.flowReceiveChannel);
 	}
 
     @Override
@@ -107,6 +99,9 @@ public class FlowMessageHandlerFactoryBean extends AbstractSimpleMessageHandlerF
         }
         Assert.notEmpty(this.flowConfiguration.getOutputPortNames(), "flow [" + this.flow.getBeanName()
                 + "] has no configured output ports");
+        
+   
+        bridgeMessagingPorts();
     }
 
 }
