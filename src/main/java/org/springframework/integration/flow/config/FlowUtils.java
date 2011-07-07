@@ -14,12 +14,10 @@ package org.springframework.integration.flow.config;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.beans.factory.support.AbstractBeanDefinition;
-import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionReaderUtils;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.integration.MessageChannel;
-import org.springframework.integration.config.ConsumerEndpointFactoryBean;
+import org.springframework.integration.core.SubscribableChannel;
 import org.springframework.integration.handler.BridgeHandler;
 
 /**
@@ -27,28 +25,25 @@ import org.springframework.integration.handler.BridgeHandler;
  *
  */
 public class FlowUtils {
-	/*
-	 * create  a bridge
+	/**
+	 * Create a bridge 
+	 * @param inputChannel
+	 * @param outputChannel
 	 */
-	public static void createBridge(MessageChannel inputChannel, MessageChannel outputChannel,
-			BeanDefinitionRegistry registry) {
-
-		BeanDefinitionBuilder handlerBuilder = BeanDefinitionBuilder
-				.genericBeanDefinition(BridgeHandler.class);
-
-		handlerBuilder.addPropertyValue("outputChannel", outputChannel);
-
-		AbstractBeanDefinition handlerBeanDefinition = handlerBuilder.getBeanDefinition();
-
-		BeanDefinitionBuilder consumerEndpointBuilder = BeanDefinitionBuilder
-				.genericBeanDefinition(ConsumerEndpointFactoryBean.class);
-		
-		String handlerBeanName = registerBeanDefinition(handlerBeanDefinition, registry); 
-		consumerEndpointBuilder.addPropertyReference("handler", handlerBeanName);
-		consumerEndpointBuilder.addPropertyValue("inputChannel", inputChannel);
-		registerBeanDefinition(consumerEndpointBuilder.getBeanDefinition(), registry); 
-	}
+    
+	public static void bridgeChannels(SubscribableChannel inputChannel, MessageChannel outputChannel) {
+	    BridgeHandler bridgeHandler = new BridgeHandler();
+	    bridgeHandler.setOutputChannel(outputChannel);
+	    inputChannel.subscribe(bridgeHandler);
+    }
 	
+	
+	/**
+	 * Register a bean with "flow" prefix
+	 * @param beanDefinition
+	 * @param registry
+	 * @return
+	 */
 	public static String registerBeanDefinition(BeanDefinition beanDefinition, BeanDefinitionRegistry registry){
 		String beanName = BeanDefinitionReaderUtils.generateBeanName(beanDefinition, registry);
 		beanName = "flow."+ beanName;
