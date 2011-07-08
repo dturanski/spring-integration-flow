@@ -59,7 +59,7 @@ public class FlowMessageHandler extends AbstractReplyProducingMessageHandler {
          
         Message<?> message = MessageBuilder
         .fromMessage(requestMessage)
-        .copyHeadersIfAbsent(flowConversationIdHeader)
+        .copyHeaders(flowConversationIdHeader)
        
          .build();
         Message<?> response = null;
