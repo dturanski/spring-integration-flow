@@ -25,7 +25,7 @@ import org.w3c.dom.Element;
  * @author David Turanski
  * 
  */
-public class FlowProviderPortConfigurationParser implements BeanDefinitionParser {
+public class FlowPortConfigurationParser implements BeanDefinitionParser {
 
 	@Override
 	public BeanDefinition parse(Element arg0, ParserContext arg1) {

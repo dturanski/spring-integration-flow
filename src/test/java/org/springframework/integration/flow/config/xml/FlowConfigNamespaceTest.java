@@ -15,13 +15,14 @@
  */
 package org.springframework.integration.flow.config.xml;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.flow.FlowConfiguration;
-import org.springframework.integration.flow.FlowProviderPortConfiguration;
+import org.springframework.integration.flow.PortConfiguration;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -40,10 +41,10 @@ public class FlowConfigNamespaceTest {
 	public void test() {
 		assertNotNull(flowConfiguration.getPortConfigurations());
 		assertEquals(2, flowConfiguration.getPortConfigurations().size());
-		FlowProviderPortConfiguration pc0 = flowConfiguration.getPortConfigurations().get(0);
+		PortConfiguration pc0 = flowConfiguration.getPortConfigurations().get(0);
 		assertEquals("input", pc0.getInputPortName());
 		assertEquals("subflow-input", pc0.getInputChannel());
-		assertEquals("", pc0.getInputPortDescription());
+	 
 		assertEquals("subflow-output", pc0.getOutputChannel("output"));
 		assertEquals(1, pc0.getOutputPortNames().size());
 	}

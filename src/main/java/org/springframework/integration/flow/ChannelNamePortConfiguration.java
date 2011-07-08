@@ -19,31 +19,26 @@
 package org.springframework.integration.flow;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
-public class ChannelNamePortConfiguration extends NamedResourceConfiguration implements FlowProviderPortConfiguration {
+public class ChannelNamePortConfiguration implements PortConfiguration {
 
 	private PortMetadata inputPortMetadata;
+	private List<PortMetadata> outputPortMetadataList;
 
 	public ChannelNamePortConfiguration(PortMetadata inputPortMetadata, List<PortMetadata> outputPortMetadataList) {
-		super(outputPortMetadataList);
+		this.outputPortMetadataList = outputPortMetadataList; 
 		this.inputPortMetadata = inputPortMetadata;
 	}
 
 	@Override
 	public String getInputPortName() {
-		return this.inputPortMetadata.getName();
+		return this.inputPortMetadata.getPortName();
 	}
 
 	@Override
 	public String getInputChannel() {
 		return this.inputPortMetadata.getChannelName();
-	}
-
-	@Override
-	public String getInputPortDescription() {
-		return this.inputPortMetadata.getDescription();
 	}
 	
 	 
@@ -59,9 +54,8 @@ public class ChannelNamePortConfiguration extends NamedResourceConfiguration imp
 	@Override
 	public List<String> getOutputPortNames() {
 		List<String> results = new ArrayList<String>();
-		for (NamedResourceMetadata resourceMetadata : getConfiguredResources()) {
-			PortMetadata portMetadata = (PortMetadata) resourceMetadata;
-			results.add(portMetadata.getName());
+		for (PortMetadata portMetadata : outputPortMetadataList ) {
+			results.add(portMetadata.getPortName());
 		}
 		/**
 		 * consistent with ClientPortConfiguration impl.
@@ -73,12 +67,14 @@ public class ChannelNamePortConfiguration extends NamedResourceConfiguration imp
 
 		return results;
 	}
-
-	/* (non-Javadoc)
-	 * @see org.springframework.integration.flow.FlowProviderPortConfiguration#getOutputPortMetadata()
-	 */
-	@Override
-	public List<NamedResourceMetadata> getOutputPortMetadata() {
-		return Collections.unmodifiableList(super.getConfiguredResources());
+	
+	public PortMetadata find(String portName){
+	    for (PortMetadata portMetadata : outputPortMetadataList ) {
+           if (portName.equals(portMetadata.getPortName())){
+               return portMetadata;
+           }
+        }
+	    return null;
 	}
+
 }

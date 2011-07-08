@@ -11,18 +11,9 @@
 
 	<int-flow:flow-configuration> 
 		<int-flow:port-mapping>
-			<int-flow:input-port name="gateway-input"
-				channel="subflow-input">
-				<int-flow:description></int-flow:description>
-			</int-flow:input-port>
-			<int-flow:output-port name="gateway-output"
-				channel="hello-output">
-				<int-flow:description></int-flow:description>
-			</int-flow:output-port>
-			<int-flow:output-port name="gateway-discard"
-				channel="world-output">
-				<int-flow:description></int-flow:description>	
-			</int-flow:output-port>
+			<int-flow:input-port name="gateway-input" channel="subflow-input"/>
+			<int-flow:output-port name="gateway-output" channel="hello-output"/>
+			<int-flow:output-port name="gateway-discard" channel="world-output"/>
 		</int-flow:port-mapping>
 	</int-flow:flow-configuration>
 

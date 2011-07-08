@@ -5,7 +5,7 @@ A flow is a Spring Integration message flow intended for reuse. A flow is access
 to internal channels. 
 
 A flow may expose multiple inputs and multiple outputs. A port mapping is defined for each input and has multiple
-outputs associated with it. See src/test/resources/META-INF/spring/integration/flows/subflow1-context.xml, for example.
+outputs associated with it. See src/test/resources/META-INF/spring/integration/flows/subflow1/subflow1-context.xml, for example.
 
 Generally, a message flow may behave like a router. For example, a flow may define
 a primary output and a discard output. Additionally, it may act like a delayer, providing no immediate response. Or it 
@@ -14,9 +14,8 @@ could act as an outbound channel adapter, providing no output.
 The goal is to support these, and possibly other semantics. Additional goals are:
 - Encapsulation: the flow channels, and component should not be included the consumer application context. The consumer need
 not know how the flow is configured (i.e, it is contained in a jar). 
-- Configuration: The flow may define optional or required properties to be provided by the consumer. The flow may define optional 
-or required bean definitions provided by the consumer (e.g, a generic XML processor may require an OXM marshaller)
- - The flow should be self describing, in terms of ports, properties, and beans it exposes
+- Configuration: The flow may reference properties or beans to be provided by the consumer, e.g, a generic XML processor may require an OXM marshaller.
+ - The flow should provide a description, in terms of ports, properties, and beans it exposes
  - It should be easy to implement or wrap an existing configuration as a flow and provide a better option than simple importing
  a spring configuration file and sending a message to one of its input channels
 
@@ -27,6 +26,15 @@ The flow consumer instantiates a flow and defines one or more flow outbound-gate
 
 <int-flow:flow id="subflow1"/>
 
+The flow also supports a properties attribute and a referenced-bean-locations attribute used to inject properties and a list of configuration files respectively. 
+Additionally any bean definition may be or property in the parent context may be inherited by the flow. 
+
+An optional flow-id may be used to resolve the flow configuration. By default the id attribute is used as the flow-id. The flow-id is useful if there are multiple
+instances of the same flow, each configured differently. Each instance would have a unique id and the same flow-id.
+
+An optional help attribute will output the flow's documentation to the STDOUT if set to 'true'.
+
+
 <int-flow:outbound-gateway flow="subflow1" input-channel="another-input" 
      output-channel="another-output" input-port="gateway-input"/>  
  
@@ -35,16 +43,16 @@ ports. The output port name is contained in the response header 'flow.output.por
 
 The input-port attribute is optional -- if the flow defines a single input port it will be mapped by default.
 
-The flow also supports a properties attribute and a referenced-bean-locations attribute used to inject properties and a list of configuration files respectively. 
-Additionally any bean definition may be or property in the parent context may be inherited by the flow.
 
  
 Flow Implementation
 -------------------     
 The flow element creates a Flow instance (eventually, configured with properties, referenced beans, etc.) The flow id is used to derive the flow's
-spring bean definition file by convention (META-INF/spring/flows/[flow-id]-context.xml). This bean definition file and any referenced bean locations 
+spring bean definition file by convention (classpath:META-INF/spring/flows/[flow-id]/*.xml). This bean definition file and any referenced bean locations 
 will be used to create a child application context. The flow context must provide a FlowConfiguration containing the metadata describing the input ports, 
 output ports, and referenced beans and properties. 
+
+The flow implementer should also create a text file classpath:META-INF/spring/flows/[flow-id]/flow.doc which will contain the 'help' contents. 
 
 Currently, all defined outputs are bridged to a PublishSubscribeChannel which acts as a single 'flowOutputChannel'. 
 Each flow outbound-gateway instance is backed by a FlowMessageHandler that bridges the 'flow output channel' to its own QueueChannel. This emulates

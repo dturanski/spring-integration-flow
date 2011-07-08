@@ -24,47 +24,35 @@ import java.util.List;
  */
 public class FlowConfiguration {
 
-	private final List<FlowProviderPortConfiguration> portConfigurations;
-
-	private volatile NamedResourceConfiguration propertiesConfiguration;
-
-	private volatile NamedResourceConfiguration referencedBeansConfiguration;
-
-	public FlowConfiguration(List<FlowProviderPortConfiguration> portConfigurations) {
+	private final List<PortConfiguration> portConfigurations;
+	
+	/**
+	 * 
+	 * @param portConfigurations
+	 */ 
+	public FlowConfiguration(List<PortConfiguration> portConfigurations) {
 		this.portConfigurations = portConfigurations;
 	}
 
-	public FlowProviderPortConfiguration getConfigurationForInputPort(String inputPortName) {
-		for (FlowProviderPortConfiguration pc : portConfigurations) {
+	/**
+	 * 
+	 * @param inputPortName
+	 * @return
+	 */
+	public PortConfiguration getConfigurationForInputPort(String inputPortName) {
+		for (PortConfiguration pc : portConfigurations) {
 			if (pc.getInputPortName().equals(inputPortName)) {
 				return pc;
 			}
 		}
 		return null;
 	}
-
-	public void setPropertiesConfiguration(NamedResourceConfiguration propertiesConfiguration) {
-		this.propertiesConfiguration = propertiesConfiguration;
-	}
-
-	public void setReferenceedBeansConfiguration(NamedResourceConfiguration referencedBeansConfiguration) {
-		this.setReferencedBeansConfiguration(referencedBeansConfiguration);
-	}
-
-	public List<FlowProviderPortConfiguration> getPortConfigurations() {
+	/**
+	 * 
+	 * @return
+	 */
+	public List<PortConfiguration> getPortConfigurations() {
 		return portConfigurations;
-	}
-
-	public NamedResourceConfiguration getPropertiesConfiguration() {
-		return propertiesConfiguration;
-	}
-
-	public void setReferencedBeansConfiguration(NamedResourceConfiguration referencedBeansConfiguration) {
-		this.referencedBeansConfiguration = referencedBeansConfiguration;
-	}
-
-	public NamedResourceConfiguration getReferencedBeansConfiguration() {
-		return referencedBeansConfiguration;
 	}
 
 }

@@ -18,7 +18,6 @@ package org.springframework.integration.flow.config.xml;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -54,7 +53,7 @@ public class FlowWithErrorTest {
   
   @Test
   public void testDirectCallWithErrorChannel(){
-	  ApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:/META-INF/spring/integration/flows/subflow5-context.xml");
+	  ApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:/META-INF/spring/integration/flows/subflow5/subflow5-context.xml");
 	  MessageChannel input = applicationContext.getBean("subflow-input",MessageChannel.class);
 	  SubscribableChannel error =  applicationContext.getBean("errorChannel",SubscribableChannel.class);
 	   

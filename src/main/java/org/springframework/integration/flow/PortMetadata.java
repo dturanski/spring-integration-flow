@@ -20,20 +20,25 @@ package org.springframework.integration.flow;
  * @author David Turanski
  * 
  */
-public class PortMetadata extends NamedResourceMetadata {
+public class PortMetadata  {
 
 	private final String channelName;
+	private final String portName;
 
 	public PortMetadata(String portName, String channelName) {
-		this(portName, "", channelName);
+		 this.portName = portName;
+		 this.channelName = channelName;
 	}
 
-	public PortMetadata(String portName, String description, String channelName) {
-		super(portName, description, true);
-		this.channelName = channelName;
-	}
+    public String getChannelName() {
+        return channelName;
+    }
 
-	public String getChannelName() {
-		return channelName;
-	}
+    public String getPortName() {
+        return portName;
+    }
+
+	 
+
+	 
 }

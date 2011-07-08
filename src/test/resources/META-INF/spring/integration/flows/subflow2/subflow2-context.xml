@@ -19,7 +19,6 @@
 			<int-flow:input-port name="input" channel="subflow-input" />
 			<int-flow:output-port name="output" channel="subflow-output" />
 		</int-flow:port-mapping>
-		<int-flow:referenced-bean id="refbean" required="true" />
 	</int-flow:flow-configuration>
 
 	<int:channel id="subflow-output" />

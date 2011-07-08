@@ -84,7 +84,7 @@ public class FlowMessageHandler extends AbstractReplyProducingMessageHandler {
                 }
             }
         } catch (MessagingException me) {
-            log.debug("caught exception - failed message: " + me.getFailedMessage());
+            log.error(me.getMessage(), me);
             if (conversationId.equals(me.getFailedMessage().getHeaders().get("flow.conversation.id"))) {
                 return new ErrorMessage(me);
             }

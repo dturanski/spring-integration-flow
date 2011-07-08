@@ -45,6 +45,7 @@ public class FlowParser implements BeanDefinitionParser {
 		IntegrationNamespaceUtils.setValueIfAttributeDefined(flowBuilder, element, "referenced-bean-locations");
 		IntegrationNamespaceUtils.setReferenceIfAttributeDefined(flowBuilder, element, "properties");
 		IntegrationNamespaceUtils.setValueIfAttributeDefined(flowBuilder, element, "help");
+		  IntegrationNamespaceUtils.setValueIfAttributeDefined(flowBuilder, element, "flow-id");
 		
 		BeanDefinition beanDefinition = flowBuilder.getBeanDefinition();
 		parserContext.getRegistry().registerBeanDefinition(id, beanDefinition);

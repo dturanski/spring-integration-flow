@@ -30,5 +30,5 @@ public interface PortConfiguration {
 	public Collection<String> getOutputPortNames();
 
 	public Object getOutputChannel(String portName);
-	// TODO: Do we need error channel?
+	 
 }

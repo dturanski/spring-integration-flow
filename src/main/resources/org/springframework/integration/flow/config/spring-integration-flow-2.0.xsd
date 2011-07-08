@@ -44,6 +44,14 @@
 			]]></xsd:documentation>
 				</xsd:annotation>
 			</xsd:attribute>
+            <xsd:attribute name="flow-id" type="xsd:string"
+                use="optional">
+                <xsd:annotation>
+                    <xsd:documentation><![CDATA[
+                Flow id
+            ]]></xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
 		</xsd:complexType>
 	</xsd:element>
 
@@ -105,8 +113,7 @@
 				 
 					<xsd:element name="port-mapping" type="PortMappingType" /> 
 				</xsd:choice>
-				<xsd:element name="referenced-bean" minOccurs="0" maxOccurs="unbounded" type="NamedResourceType"/>
-				<xsd:element name="referenced-property" minOccurs="0" maxOccurs="unbounded" type="NamedResourceType"/>
+				 
 			</xsd:sequence>
 		</xsd:complexType>
 	</xsd:element>
@@ -129,52 +136,17 @@
 		<xsd:attribute name="channel" type="xsd:string" use="required" />
 	</xsd:complexType>
 
-	<xsd:complexType name="FlowPortType">
-		<xsd:annotation>
-			<xsd:documentation><![CDATA[
-				Defines an integration flow port binding
-			]]></xsd:documentation>
-		</xsd:annotation>
-		<xsd:complexContent>
-			<xsd:extension base="BasePortType">
-				<xsd:sequence>
-					<xsd:element name="description" minOccurs="0"
-						maxOccurs="1" type="xsd:string" />
-				</xsd:sequence> 
-			</xsd:extension>
-		</xsd:complexContent>
-	</xsd:complexType>
-	
-	<xsd:complexType name="FlowOutputPortType">
-		<xsd:annotation>
-			<xsd:documentation><![CDATA[
-				Defines an integration flow output port binding
-			]]></xsd:documentation>
-		</xsd:annotation>
-		<xsd:complexContent>
-			<xsd:extension base="FlowPortType">				 
-			</xsd:extension>
-		</xsd:complexContent>
-	</xsd:complexType>
+	 
 
 	<xsd:complexType name="PortMappingType">
 		<xsd:sequence>
 			<xsd:element name="input-port" minOccurs="1" maxOccurs="1"
-				nillable="false" type="FlowPortType">
+				nillable="false" type="BasePortType">
 			</xsd:element>
-			<xsd:element name="output-port" minOccurs="0" maxOccurs="unbounded" type="FlowOutputPortType"/>
+			<xsd:element name="output-port" minOccurs="0" maxOccurs="unbounded" type="BasePortType"/>
 		</xsd:sequence>
 	</xsd:complexType>
 	
-    <xsd:complexType name="NamedResourceType">
-		<xsd:sequence>
-			<xsd:element name="description" type="xsd:string" minOccurs="0"/>
-		</xsd:sequence>
-		
-		<xsd:attribute name="required" type="xsd:boolean" default="false">
-		</xsd:attribute>
-		<xsd:attribute name="id" use="required" type="xsd:ID">
-		</xsd:attribute>
-	</xsd:complexType>
+   
 	
 </xsd:schema>

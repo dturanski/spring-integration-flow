@@ -23,7 +23,7 @@ import org.springframework.integration.config.AbstractSimpleMessageHandlerFactor
 import org.springframework.integration.core.MessageHandler;
 import org.springframework.integration.core.PollableChannel;
 import org.springframework.integration.flow.Flow;
-import org.springframework.integration.flow.FlowProviderPortConfiguration;
+import org.springframework.integration.flow.PortConfiguration;
 import org.springframework.integration.flow.handler.FlowMessageHandler;
 import org.springframework.util.Assert;
 
@@ -45,7 +45,7 @@ public class FlowMessageHandlerFactoryBean extends AbstractSimpleMessageHandlerF
 
 	private volatile PollableChannel flowReceiveChannel;
 	
-	private volatile   FlowProviderPortConfiguration flowConfiguration;
+	private volatile   PortConfiguration flowConfiguration;
 
 	@Override
 	protected MessageHandler createHandler() {

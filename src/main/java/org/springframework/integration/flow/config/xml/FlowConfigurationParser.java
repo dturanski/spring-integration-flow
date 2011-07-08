@@ -16,6 +16,7 @@
 package org.springframework.integration.flow.config.xml;
 
 import java.util.List;
+
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionReaderUtils;
@@ -24,8 +25,6 @@ import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.integration.flow.ChannelNamePortConfiguration;
 import org.springframework.integration.flow.FlowConfiguration;
-import org.springframework.integration.flow.NamedResourceConfiguration;
-import org.springframework.integration.flow.NamedResourceMetadata;
 import org.springframework.integration.flow.PortMetadata;
 import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Element;
@@ -57,19 +56,8 @@ public class FlowConfigurationParser implements BeanDefinitionParser {
 		flowConfigurationBuilder.addConstructorArgValue(portConfigList);
 
 
-		 BeanDefinition referencedProperties = this.buildNamedResourceConfiguration(element, "referenced-property");
-		 
-		 flowConfigurationBuilder.addPropertyValue("propertiesConfiguration", referencedProperties);
-		 
-		 BeanDefinition referencedBeans = this.buildNamedResourceConfiguration(element, "referenced-bean");
-		 
-		 flowConfigurationBuilder.addPropertyValue("referencedBeansConfiguration", referencedBeans);
-		
 		BeanDefinitionReaderUtils.registerWithGeneratedName(flowConfigurationBuilder.getBeanDefinition(),
-				parserContext.getRegistry());
-		
-		 
-		
+				parserContext.getRegistry());		
 		
 		return null;
 	}
@@ -101,38 +89,10 @@ public class FlowConfigurationParser implements BeanDefinitionParser {
 		return portConfigurationBuilder.getBeanDefinition();
 	}
 	
-	private BeanDefinition buildNamedResourceConfiguration(Element parent, String elementName) {
-		ManagedList<Object> namedResourceList = new ManagedList<Object>();
-		List<Element> namedResources = DomUtils.getChildElementsByTagName(parent, elementName);
-		for (Element el : namedResources ) {
-			BeanDefinitionBuilder namedResourceBuilder = BeanDefinitionBuilder.genericBeanDefinition(NamedResourceMetadata.class);
-			boolean required = ("true".equals(el.getAttribute("required")));
-			String name = el.getAttribute("id");
-			String description =  getChildElementText(el, "description", "");
-			namedResourceBuilder.addConstructorArgValue(name);
-			namedResourceBuilder.addConstructorArgValue(description);
-			namedResourceBuilder.addConstructorArgValue(required);
-			namedResourceList.add(namedResourceBuilder.getBeanDefinition());
-		}
-		BeanDefinitionBuilder namedResourceConfigurationBuilder = BeanDefinitionBuilder.genericBeanDefinition(NamedResourceConfiguration.class);
-		namedResourceConfigurationBuilder.addConstructorArgValue(namedResourceList);
-		return namedResourceConfigurationBuilder.getBeanDefinition();
-	}
-	
-	private String getChildElementText(Element parent, String elementName, String defaultValue ){
-		String value = defaultValue;
-		Element child = DomUtils.getChildElementByTagName(parent, elementName);
-		if (child != null ) {
-			value = child.getTextContent();
-		}
-		return value;
-	}
-	
+	 
 	private BeanDefinition buildPortMetadata(Element element, Element portElement) {
 		BeanDefinitionBuilder portMetadataBuilder = BeanDefinitionBuilder.genericBeanDefinition(PortMetadata.class);
 		portMetadataBuilder.addConstructorArgValue(portElement.getAttribute("name")); 
-		String description =  getChildElementText(portElement, "description", "");
-		portMetadataBuilder.addConstructorArgValue(description); 
 		portMetadataBuilder.addConstructorArgValue(portElement.getAttribute("channel"));
 		return portMetadataBuilder.getBeanDefinition();
 	}

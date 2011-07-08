@@ -49,7 +49,9 @@ public class Flow implements InitializingBean, BeanNameAware, ChannelResolver, A
 
 	private volatile Properties flowProperties;
 
-	private volatile String name;
+	private volatile String beanName;
+	
+	private volatile String flowId;
 
 	private volatile ChannelResolver flowChannelResolver;
 
@@ -67,10 +69,18 @@ public class Flow implements InitializingBean, BeanNameAware, ChannelResolver, A
 
 	@Override
 	public void afterPropertiesSet() {
+	    
+	    if (this.flowId == null){
+	        this.flowId = this.beanName;
+	    }
+	    
+	    if (this.help) {
+            System.out.println(FlowUtils.getDocumentation(this.flowId));
+        }
 
 		if (configLocations == null) {
 			configLocations = new String[] { String.format(
-					"classpath*:META-INF/spring/integration/flows/%s-context.xml", this.name) };
+					"classpath:META-INF/spring/integration/flows/%s/*.xml", this.flowId) };
 		}
 
 		if (referencedBeanLocations != null) {
@@ -87,9 +97,7 @@ public class Flow implements InitializingBean, BeanNameAware, ChannelResolver, A
 		this.flowConfiguration = flowContext.getBean(FlowConfiguration.class);
 		Assert.notNull(flowConfiguration, "flow context does not contain a flow configuration");
 
-		if (this.help) {
-			System.out.println(displayFlowConfiguration());
-		}
+		
 
 		validatePortMapping();
 
@@ -109,15 +117,19 @@ public class Flow implements InitializingBean, BeanNameAware, ChannelResolver, A
 
 	@Override
 	public void setBeanName(String name) {
-		this.name = name;
+		this.beanName = name;
 
 	}
 
 	public String getBeanName() {
-		return this.name;
+		return this.beanName;
 	}
 
-	public void setReferencedBeanLocations(String[] referencedBeanLocations) {
+	public void setFlowId(String flowId) {
+        this.flowId = flowId;
+    }
+
+    public void setReferencedBeanLocations(String[] referencedBeanLocations) {
 		this.referencedBeanLocations = referencedBeanLocations;
 	}
 
@@ -142,58 +154,12 @@ public class Flow implements InitializingBean, BeanNameAware, ChannelResolver, A
 		return flowChannelResolver.resolveChannelName(channelName);
 	}
 
-	 
-
-	/**
-	 * 
-	 */
-	private String displayFlowConfiguration() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("\nFlow configuration for [").append(this.getBeanName()).append("]:\n");
-		sb.append("Port configuration:\n");
-		for (FlowProviderPortConfiguration portConfiguration : this.getFlowConfiguration().getPortConfigurations()) {
-			sb.append("\tinput port:").append(portConfiguration.getInputPortName()).append("\n\n\t")
-					.append(portConfiguration.getInputPortDescription()).append("\n\n").append("\toutput ports:\n");
-
-			for (NamedResourceMetadata metadata : portConfiguration.getOutputPortMetadata()) {
-				sb.append("\t\t").append(metadata.getName()).append("\t")
-				.append(metadata.getDescription()).append("\n");
-			}
-
-			NamedResourceConfiguration referencedBeansConfig = this.getFlowConfiguration()
-					.getReferencedBeansConfiguration();
-			if (referencedBeansConfig != null && !referencedBeansConfig.getConfiguredResources().isEmpty()) {
-				sb.append("\nReferenced beans:\n");
-				for (NamedResourceMetadata metadata : referencedBeansConfig.getConfiguredResources()) {
-					sb.append("\t").append(metadata).append("\n");
-				}
-			}
-
-			NamedResourceConfiguration propertiesConfig = this.getFlowConfiguration().getPropertiesConfiguration();
-			if (propertiesConfig != null && !propertiesConfig.getConfiguredResources().isEmpty()) {
-				sb.append("\nFlow properties:\n");
-				for (NamedResourceMetadata metadata : propertiesConfig.getConfiguredResources()) {
-					sb.append("\t").append(metadata).append("\n");
-				}
-			}
-
-		}
-
-		return sb.toString();
-	}
 
 	private void addReferencedProperties() {
 		if (flowProperties != null) {
 
 			PropertySource<?> propertySource = new PropertiesPropertySource("flowProperties", flowProperties);
-			NamedResourceConfiguration propertiesConfiguration = this.getFlowConfiguration()
-					.getPropertiesConfiguration();
-			if (propertiesConfiguration != null) {
-				for (NamedResourceMetadata resource : propertiesConfiguration.getRequiredResources()) {
-					Assert.isTrue(propertySource.containsProperty(resource.getName()), "Flow [" + this.name
-							+ "] is missing required property [" + resource.getName() + "]");
-				}
-			}
+			 
 			MutablePropertySources propertySources = flowContext.getEnvironment().getPropertySources();
 			propertySources.addLast(propertySource);
 			
@@ -212,7 +178,7 @@ public class Flow implements InitializingBean, BeanNameAware, ChannelResolver, A
 		/*
 		 * create a bridge for each target output port to the flow outputChannel
 		 */
-		for (FlowProviderPortConfiguration targetPortConfiguration : this.getFlowConfiguration()
+		for (PortConfiguration targetPortConfiguration : this.getFlowConfiguration()
 				.getPortConfigurations()) {
 			for (String outputPort : targetPortConfiguration.getOutputPortNames()) {
 				String targetOutputChannelName = (String) targetPortConfiguration.getOutputChannel(outputPort);

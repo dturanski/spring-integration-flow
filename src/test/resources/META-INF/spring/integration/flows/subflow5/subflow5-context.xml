@@ -13,22 +13,28 @@
 	
 	<int-flow:flow-configuration>
 		<int-flow:port-mapping>
-			<int-flow:input-port name="input" channel="subflow-input">
-				<int-flow:description>This optionally describes the flow</int-flow:description>
-			</int-flow:input-port>
-			<int-flow:output-port name="output" channel="subflow-output">
-				<int-flow:description>This describes the purpose/ necessary conditions for this output</int-flow:description>
-			</int-flow:output-port>
-		</int-flow:port-mapping>
+			<int-flow:input-port name="input" channel="subflow-input"/>
+			<int-flow:output-port name="output" channel="subflow-output"/>
+		    <int-flow:output-port name="error" channel="errorChannel"/>	 
+		</int-flow:port-mapping>		 
 	</int-flow:flow-configuration>
 
+	<int:service-activator 
+	    input-channel="subflow-input"
+		output-channel="subflow-output" ref="gateway"
+	/>
+
+	<int:gateway id="gateway"
+		default-request-channel="requestChannel"
 	 
-	<!-- Throws exception -->	
-	<int:service-activator input-channel="subflow-input" output-channel="subflow-output" method="exception">
+		error-channel="errorChannel"
+		default-reply-timeout="1"/>
+		
+	<int:service-activator input-channel="requestChannel"   method="exception">
 		<bean class="org.springframework.integration.flow.config.xml.ExceptionBean"/>
 	</int:service-activator>	
+   
+   <int:channel id="subflow-output"/>
   
-	<int:channel id="subflow-output"/>
-	 
 	 
 </beans>
