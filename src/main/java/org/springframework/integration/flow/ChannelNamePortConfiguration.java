@@ -57,14 +57,6 @@ public class ChannelNamePortConfiguration implements PortConfiguration {
 		for (PortMetadata portMetadata : outputPortMetadataList ) {
 			results.add(portMetadata.getPortName());
 		}
-		/**
-		 * consistent with ClientPortConfiguration impl.
-		 */
-
-		if (results.isEmpty()) {
-			return null;
-		}
-
 		return results;
 	}
 	

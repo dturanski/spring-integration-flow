@@ -12,7 +12,7 @@
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd">
 
 	<!-- Need to set ignore-unresolvable true or provide defaults for required properties -->
-	<context:property-placeholder ignore-unresolvable="true"/> 
+	<context:property-placeholder/> 
 	 
 	<int-flow:flow-configuration>
 		<int-flow:port-mapping>

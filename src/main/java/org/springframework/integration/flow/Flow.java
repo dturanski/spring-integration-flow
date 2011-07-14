@@ -10,7 +10,6 @@ import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.PropertiesPropertySource;
@@ -37,9 +36,9 @@ public class Flow implements InitializingBean, BeanNameAware, ChannelResolver, A
 
 	private static Log logger = LogFactory.getLog(Flow.class);
 
-	private volatile ConfigurableApplicationContext flowContext;
+	private volatile ClassPathXmlApplicationContext flowContext;
 	
-	private ConfigurableApplicationContext applicationContext;
+	private ApplicationContext applicationContext;
 
 	private volatile FlowConfiguration flowConfiguration;
 
@@ -92,22 +91,22 @@ public class Flow implements InitializingBean, BeanNameAware, ChannelResolver, A
 
 		Assert.notEmpty(configLocations, "configLocations cannot be empty");
 
-		flowContext = new ClassPathXmlApplicationContext(configLocations, applicationContext);
+		flowContext = new ClassPathXmlApplicationContext(applicationContext);
 
-		this.flowConfiguration = flowContext.getBean(FlowConfiguration.class);
-		Assert.notNull(flowConfiguration, "flow context does not contain a flow configuration");
-
+		addReferencedProperties();
+        
+        this.flowContext.setConfigLocations(configLocations);
+        
+        this.flowContext.refresh();  
 		
+        this.flowConfiguration = flowContext.getBean(FlowConfiguration.class);
+		Assert.notNull(flowConfiguration, "flow context does not contain a flow configuration");
 
 		validatePortMapping();
 
 		this.flowChannelResolver = new BeanFactoryChannelResolver(flowContext);
-
-		addReferencedProperties();
 		
-		bridgeMessagingPorts();
-		
-		
+		bridgeMessagingPorts();		 
 
 	}
 
@@ -157,13 +156,10 @@ public class Flow implements InitializingBean, BeanNameAware, ChannelResolver, A
 
 	private void addReferencedProperties() {
 		if (flowProperties != null) {
-
 			PropertySource<?> propertySource = new PropertiesPropertySource("flowProperties", flowProperties);
 			 
 			MutablePropertySources propertySources = flowContext.getEnvironment().getPropertySources();
 			propertySources.addLast(propertySource);
-			
-			this.flowContext.refresh();	
 		}
 
 	}
@@ -195,7 +191,7 @@ public class Flow implements InitializingBean, BeanNameAware, ChannelResolver, A
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-       this.applicationContext = (ConfigurableApplicationContext) applicationContext;
+       this.applicationContext = applicationContext;
         
     }
 }
