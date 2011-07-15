@@ -12,11 +12,14 @@ import org.springframework.integration.core.PollableChannel;
 import org.springframework.integration.core.SubscribableChannel;
 import org.springframework.integration.flow.config.FlowUtils;
 import org.springframework.integration.message.GenericMessage;
-
+/**
+ * 
+ * @author David Turanski
+ *
+ */
 public class FlowUtilsTest {
     @Test
     public void buildBridge(){
-        
          
         SubscribableChannel inputChannel = new DirectChannel();
         SubscribableChannel outputChannel = new PublishSubscribeChannel();

@@ -97,8 +97,7 @@ public class FlowMessageHandlerFactoryBean extends AbstractSimpleMessageHandlerF
            this.flowConfiguration = this.flow.getFlowConfiguration().getConfigurationForInputPort(
                 this.inputPortName);
         }
-        Assert.notEmpty(this.flowConfiguration.getOutputPortNames(), "flow [" + this.flow.getBeanName()
-                + "] has no configured output ports");
+ 
         
    
         bridgeMessagingPorts();
