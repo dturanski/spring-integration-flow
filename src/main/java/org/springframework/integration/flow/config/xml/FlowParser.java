@@ -23,6 +23,7 @@ import org.springframework.integration.channel.PublishSubscribeChannel;
 import org.springframework.integration.config.xml.IntegrationNamespaceUtils;
 import org.springframework.integration.flow.Flow;
 import org.springframework.integration.flow.config.FlowUtils;
+import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Element;
 
 /**
@@ -34,6 +35,16 @@ public class FlowParser implements BeanDefinitionParser {
 
 	@Override
 	public BeanDefinition parse(Element element, ParserContext parserContext) {
+	    
+
+        Element props = DomUtils.getChildElementByTagName(element,"props");
+        
+        if(element.hasAttribute("properties") && props !=null) {
+            parserContext.getReaderContext().error(
+                    "Element cannot have both 'properties' attribute and inner 'props' element",element);
+        }
+                
+	    
 		BeanDefinitionBuilder flowBuilder = BeanDefinitionBuilder.genericBeanDefinition(Flow.class);
 		String id = element.getAttribute("id");
 		BeanDefinitionBuilder flowOutputChannelBuilder = BeanDefinitionBuilder
@@ -45,11 +56,17 @@ public class FlowParser implements BeanDefinitionParser {
 		IntegrationNamespaceUtils.setValueIfAttributeDefined(flowBuilder, element, "referenced-bean-locations");
 		IntegrationNamespaceUtils.setReferenceIfAttributeDefined(flowBuilder, element, "properties");
 		IntegrationNamespaceUtils.setValueIfAttributeDefined(flowBuilder, element, "help");
-		  IntegrationNamespaceUtils.setValueIfAttributeDefined(flowBuilder, element, "flow-id");
+		IntegrationNamespaceUtils.setValueIfAttributeDefined(flowBuilder, element, "flow-id");
+		
+	
+		
+		if (props != null) {    
+		    flowBuilder.addPropertyValue("properties",parserContext.getDelegate().parsePropsElement(props));
+		}
 		
 		BeanDefinition beanDefinition = flowBuilder.getBeanDefinition();
+		
 		parserContext.getRegistry().registerBeanDefinition(id, beanDefinition);
-
 		return beanDefinition;
 	}
 }

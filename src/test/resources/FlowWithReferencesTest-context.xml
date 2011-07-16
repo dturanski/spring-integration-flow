@@ -1,24 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:int="http://www.springframework.org/schema/integration"
-	xmlns:int-flow="http://www.springframework.org/schema/integration/flow"
-	xmlns:util="http://www.springframework.org/schema/util"
-	xsi:schemaLocation="http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:int="http://www.springframework.org/schema/integration"
+    xmlns:int-flow="http://www.springframework.org/schema/integration/flow"
+    xsi:schemaLocation="http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd
 		http://www.springframework.org/schema/integration/flow http://www.springframework.org/schema/integration/flow/spring-integration-flow-2.0.xsd
-		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.1.xsd">
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<util:properties id="flowProperties">
-		<prop key="key1">val1</prop>
-	</util:properties>
+ 
 
 	<!-- Instantiate the flow -->
-	<int-flow:flow id="subflow2" referenced-bean-locations="classpath:ref-bean-config.xml" properties="flowProperties"/>
+	<int-flow:flow id="subflow2" referenced-bean-locations="classpath:ref-bean-config.xml">
+        <props>
+            <prop key="key1">val1</prop>
+        </props>
+    </int-flow:flow>
 	
     <!-- input port not required if only one -->
-	<int-flow:outbound-gateway 
-		flow="subflow2" 
+	<int-flow:outbound-gateway flow="subflow2" 
 		input-channel="inputC"
 		output-channel="outputC"/>
 	

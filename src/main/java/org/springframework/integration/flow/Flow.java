@@ -34,164 +34,171 @@ import org.springframework.util.StringUtils;
  */
 public class Flow implements InitializingBean, BeanNameAware, ChannelResolver, ApplicationContextAware {
 
-	private static Log logger = LogFactory.getLog(Flow.class);
+    private static Log logger = LogFactory.getLog(Flow.class);
 
-	private volatile ClassPathXmlApplicationContext flowContext;
-	
-	private ApplicationContext applicationContext;
+    private volatile ClassPathXmlApplicationContext flowContext;
 
-	private volatile FlowConfiguration flowConfiguration;
+    private ApplicationContext applicationContext;
 
-	private volatile String[] configLocations;
+    private volatile FlowConfiguration flowConfiguration;
 
-	private volatile String[] referencedBeanLocations;
+    private volatile String[] configLocations;
 
-	private volatile Properties flowProperties;
+    private volatile String[] referencedBeanLocations;
 
-	private volatile String beanName;
-	
-	private volatile String flowId;
+    private volatile Properties flowProperties;
 
-	private volatile ChannelResolver flowChannelResolver;
+    private volatile String beanName;
 
-	private volatile PublishSubscribeChannel flowOutputChannel;
+    private volatile String flowId;
 
-	private volatile boolean help;
+    private volatile ChannelResolver flowChannelResolver;
 
-	public Flow() {
+    private volatile PublishSubscribeChannel flowOutputChannel;
 
-	}
+    private volatile boolean help;
 
-	public Flow(String[] configLocations) {
-		this.configLocations = configLocations;
-	}
+    public Flow() {
 
-	@Override
-	public void afterPropertiesSet() {
-	    
-	    if (this.flowId == null){
-	        this.flowId = this.beanName;
-	    }
-	    
-	    if (this.help) {
+    }
+
+    public Flow(Properties flowProperties, String[] configLocations) {
+        this.flowProperties = flowProperties;
+        this.configLocations = configLocations;
+    }
+
+    public Flow(String[] configLocations) {
+        this.configLocations = configLocations;
+    }
+
+    @Override
+    public void afterPropertiesSet() {
+
+        if (this.flowId == null) {
+            this.flowId = this.beanName;
+        }
+
+        if (this.help) {
             System.out.println(FlowUtils.getDocumentation(this.flowId));
         }
 
-		if (configLocations == null) {
-			configLocations = new String[] { String.format(
-					"classpath:META-INF/spring/integration/flows/%s/*.xml", this.flowId) };
-		}
+        if (configLocations == null) {
+            configLocations = new String[] { String.format("classpath:META-INF/spring/integration/flows/%s/*.xml",
+                    this.flowId) };
+        }
 
-		if (referencedBeanLocations != null) {
-			configLocations = (String[]) ArrayUtils.addAll(configLocations, referencedBeanLocations);
-		}
+        if (referencedBeanLocations != null) {
+            configLocations = (String[]) ArrayUtils.addAll(configLocations, referencedBeanLocations);
+        }
 
-		logger.debug("instantiating flow context from configLocations ["
-				+ StringUtils.arrayToCommaDelimitedString(configLocations) + "]");
+        logger.debug("instantiating flow context from configLocations ["
+                + StringUtils.arrayToCommaDelimitedString(configLocations) + "]");
 
-		Assert.notEmpty(configLocations, "configLocations cannot be empty");
+        Assert.notEmpty(configLocations, "configLocations cannot be empty");
 
-		flowContext = new ClassPathXmlApplicationContext(applicationContext);
+        flowContext = new ClassPathXmlApplicationContext(applicationContext);
 
-		addReferencedProperties();
-        
+        addReferencedProperties();
+
         this.flowContext.setConfigLocations(configLocations);
-        
-        this.flowContext.refresh();  
-		
+
+        this.flowContext.refresh();
+
         this.flowConfiguration = flowContext.getBean(FlowConfiguration.class);
-		Assert.notNull(flowConfiguration, "flow context does not contain a flow configuration");
+        Assert.notNull(flowConfiguration, "flow context does not contain a flow configuration");
 
-		validatePortMapping();
+        validatePortMapping();
 
-		this.flowChannelResolver = new BeanFactoryChannelResolver(flowContext);
-		
-		bridgeMessagingPorts();		 
+        this.flowChannelResolver = new BeanFactoryChannelResolver(flowContext);
 
-	}
+        bridgeMessagingPorts();
 
-	public FlowConfiguration getFlowConfiguration() {
-		return this.flowConfiguration;
-	}
+    }
 
-	@Override
-	public void setBeanName(String name) {
-		this.beanName = name;
+    public FlowConfiguration getFlowConfiguration() {
+        return this.flowConfiguration;
+    }
 
-	}
+    @Override
+    public void setBeanName(String name) {
+        this.beanName = name;
 
-	public String getBeanName() {
-		return this.beanName;
-	}
+    }
 
-	public void setFlowId(String flowId) {
+    public String getBeanName() {
+        return this.beanName;
+    }
+
+    public void setFlowId(String flowId) {
         this.flowId = flowId;
     }
 
     public void setReferencedBeanLocations(String[] referencedBeanLocations) {
-		this.referencedBeanLocations = referencedBeanLocations;
-	}
+        this.referencedBeanLocations = referencedBeanLocations;
+    }
 
-	public void setProperties(Properties flowProperties) {
-		this.flowProperties = flowProperties;
-	}
+    public void setProperties(Properties flowProperties) {
+        this.flowProperties = flowProperties;
+    }
+    
+    public Properties getProperties() {
+        return this.flowProperties;
+    }
 
-	public void setHelp(boolean help) {
-		this.help = help;
-	}
+    public void setHelp(boolean help) {
+        this.help = help;
+    }
 
-	public PublishSubscribeChannel getFlowOutputChannel() {
-		return flowOutputChannel;
-	}
+    public PublishSubscribeChannel getFlowOutputChannel() {
+        return flowOutputChannel;
+    }
 
-	public void setFlowOutputChannel(PublishSubscribeChannel flowOutputChannel) {
-		this.flowOutputChannel = flowOutputChannel;
-	}
+    public void setFlowOutputChannel(PublishSubscribeChannel flowOutputChannel) {
+        this.flowOutputChannel = flowOutputChannel;
+    }
 
-	@Override
-	public MessageChannel resolveChannelName(String channelName) {
-		return flowChannelResolver.resolveChannelName(channelName);
-	}
+    @Override
+    public MessageChannel resolveChannelName(String channelName) {
+        return flowChannelResolver.resolveChannelName(channelName);
+    }
 
+    private void addReferencedProperties() {
+        if (flowProperties != null) {
+            PropertySource<?> propertySource = new PropertiesPropertySource("flowProperties", flowProperties);
 
-	private void addReferencedProperties() {
-		if (flowProperties != null) {
-			PropertySource<?> propertySource = new PropertiesPropertySource("flowProperties", flowProperties);
-			 
-			MutablePropertySources propertySources = flowContext.getEnvironment().getPropertySources();
-			propertySources.addLast(propertySource);
-		}
+            MutablePropertySources propertySources = flowContext.getEnvironment().getPropertySources();
+            propertySources.addLast(propertySource);
+        }
 
-	}
+    }
 
-	private void validatePortMapping() {
-		Assert.notEmpty(this.flowConfiguration.getPortConfigurations(),
-				"flow configuration contains no port configurations");
-	}
+    private void validatePortMapping() {
+        Assert.notEmpty(this.flowConfiguration.getPortConfigurations(),
+                "flow configuration contains no port configurations");
+    }
 
-	private void bridgeMessagingPorts() {
+    private void bridgeMessagingPorts() {
 
-		/*
-		 * create a bridge for each target output port to the flow outputChannel
-		 */
-		for (PortConfiguration targetPortConfiguration : this.getFlowConfiguration()
-				.getPortConfigurations()) {
-			for (String outputPort : targetPortConfiguration.getOutputPortNames()) {
-				String targetOutputChannelName = (String) targetPortConfiguration.getOutputChannel(outputPort);
-				SubscribableChannel inputChannel = (SubscribableChannel) resolveChannelName(targetOutputChannelName);
+        /*
+         * create a bridge for each target output port to the flow outputChannel
+         */
+        for (PortConfiguration targetPortConfiguration : this.getFlowConfiguration().getPortConfigurations()) {
+            for (String outputPort : targetPortConfiguration.getOutputPortNames()) {
+                String targetOutputChannelName = (String) targetPortConfiguration.getOutputChannel(outputPort);
+                SubscribableChannel inputChannel = (SubscribableChannel) resolveChannelName(targetOutputChannelName);
 
-				((AbstractMessageChannel)inputChannel).addInterceptor(new FlowInterceptor(outputPort));
+                ((AbstractMessageChannel) inputChannel).addInterceptor(new FlowInterceptor(outputPort));
 
-				logger.debug("creating output bridge on [" + outputPort + "] inputChannelName = ["
-						+ targetOutputChannelName + "] outputChannel = [" + this.flowOutputChannel + "]");
-				FlowUtils.bridgeChannels(inputChannel, this.flowOutputChannel);
-			}
-		}
-	}
+                logger.debug("creating output bridge on [" + outputPort + "] inputChannelName = ["
+                        + targetOutputChannelName + "] outputChannel = [" + this.flowOutputChannel + "]");
+                FlowUtils.bridgeChannels(inputChannel, this.flowOutputChannel);
+            }
+        }
+    }
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-       this.applicationContext = applicationContext;
-        
+        this.applicationContext = applicationContext;
+
     }
 }

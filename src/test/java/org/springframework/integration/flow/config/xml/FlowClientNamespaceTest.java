@@ -25,71 +25,77 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.integration.Message;
 import org.springframework.integration.MessageChannel;
 import org.springframework.integration.core.PollableChannel;
+import org.springframework.integration.flow.Flow;
 import org.springframework.integration.message.GenericMessage;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
- 
+
 /**
  * 
  * @author David Turanski
- *
+ * 
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:/FlowClientNamespaceTest-context.xml")
 public class FlowClientNamespaceTest {
-	 
-	@Autowired 
-	@Qualifier("another-input")
-	MessageChannel gatewayInput;
-	
-	@Autowired 
-	@Qualifier("another-output")
-	PollableChannel gatewayOutput;
-	
-	
-  @Test
-   public void testGateway(){
- 	  Message<String> msg = new GenericMessage<String>("hello"); 
- 	  gatewayInput.send(msg);
- 	  Message<?> reply = gatewayOutput.receive();
- 	  assertNotNull(reply);
+
+    @Autowired
+    @Qualifier("inputC1")
+    MessageChannel gatewayInput;
+
+    @Autowired
+    @Qualifier("outputC1")
+    PollableChannel gatewayOutput;
+
+    @Test
+    public void testGateway() {
+        Message<String> msg = new GenericMessage<String>("hello");
+        gatewayInput.send(msg);
+        Message<?> reply = gatewayOutput.receive();
+        assertNotNull(reply);
     }
-  
-	@Autowired 
-	@Qualifier("another-input2")
-	MessageChannel gatewayInput2;
-	
-	@Autowired 
-	@Qualifier("another-output2")
-	PollableChannel gatewayOutput2;
-    
-   
-   @Test
-   public void testOutboundGateway(){
- 	  Message<String> msg1 = new GenericMessage<String>("hello"); 
- 	  Message<String> msg2 = new GenericMessage<String>("world"); 
- 	  Message<?> reply  = null;
- 	 
- 	 gatewayInput2.send(msg1);
- 	 reply = gatewayOutput2.receive();
- 	 assertNotNull(reply);
- 	 assertEquals("gateway-output",reply.getHeaders().get("flow.output.port"));
- 	 assertEquals("yeah!",reply.getHeaders().get("gateway"));
- 	 
- 	 gatewayInput2.send(msg2);
-	 reply = gatewayOutput2.receive();
-	 assertNotNull(reply);
-	 assertEquals("gateway-discard",reply.getHeaders().get("flow.output.port"));
-	 assertEquals("yeah!",reply.getHeaders().get("gateway"));
-	 
-	 gatewayInput2.send(msg1);
- 	 reply = gatewayOutput2.receive();
- 	 assertNotNull(reply);
- 	 assertEquals("gateway-output",reply.getHeaders().get("flow.output.port"));
- 	 assertEquals("yeah!",reply.getHeaders().get("gateway"));
-	 
+
+    @Autowired
+    @Qualifier("inputC2")
+    MessageChannel gatewayInput2;
+
+    @Autowired
+    @Qualifier("outputC2")
+    PollableChannel gatewayOutput2;
+
+    @Test
+    public void testOutboundGateway() {
+        Message<String> msg1 = new GenericMessage<String>("hello");
+        Message<String> msg2 = new GenericMessage<String>("world");
+        Message<?> reply = null;
+
+        gatewayInput2.send(msg1);
+        reply = gatewayOutput2.receive();
+        assertNotNull(reply);
+        assertEquals("gateway-output", reply.getHeaders().get("flow.output.port"));
+        assertEquals("yeah!", reply.getHeaders().get("gateway"));
+
+        gatewayInput2.send(msg2);
+        reply = gatewayOutput2.receive();
+        assertNotNull(reply);
+        assertEquals("gateway-discard", reply.getHeaders().get("flow.output.port"));
+        assertEquals("yeah!", reply.getHeaders().get("gateway"));
+
+        gatewayInput2.send(msg1);
+        reply = gatewayOutput2.receive();
+        assertNotNull(reply);
+        assertEquals("gateway-output", reply.getHeaders().get("flow.output.port"));
+        assertEquals("yeah!", reply.getHeaders().get("gateway"));
+
     }
-   
-	
-  
+
+    @Autowired
+    @Qualifier("flowWithProps")
+    Flow flowWithProps;
+
+    @Test
+    public void testFlowWithInnerProps() {
+        assertEquals("val1",flowWithProps.getProperties().getProperty("key1"));
+    }
+
 }

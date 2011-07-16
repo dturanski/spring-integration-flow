@@ -15,6 +15,8 @@
  */
 package org.springframework.integration.flow.config.xml;
 
+import groovy.sql.OutParameter;
+
 import java.util.List;
 
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -23,6 +25,7 @@ import org.springframework.beans.factory.support.BeanDefinitionReaderUtils;
 import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
+import org.springframework.integration.config.xml.IntegrationNamespaceUtils;
 import org.springframework.integration.flow.ChannelNamePortConfiguration;
 import org.springframework.integration.flow.FlowConfiguration;
 import org.springframework.integration.flow.PortMetadata;
@@ -48,9 +51,36 @@ public class FlowConfigurationParser implements BeanDefinitionParser {
 		ManagedList<Object> portConfigList = new ManagedList<Object>();
 
 		for (Element el : portMappings) {
-
-			BeanDefinition portConfiguration = buildFlowProviderPortConfiguration(el, parserContext);
-			portConfigList.add(portConfiguration);
+		    if (!DomUtils.getChildElements(el).isEmpty()){
+		        if (el.hasAttribute("input-channel") || el.hasAttribute("output-channel")){
+		            parserContext.getReaderContext().error(
+		                    "port-mapping cannot include both channel attributes and child elements",
+		                    flowConfigurationBuilder);
+		        }
+		        BeanDefinition portConfiguration = buildFlowProviderPortConfiguration(el, parserContext);
+		        portConfigList.add(portConfiguration);
+		    }
+		    else 
+		    {
+		        // A default port configuration 
+		        if (!(el.hasAttribute("input-channel"))){
+		            parserContext.getReaderContext().error(
+                            "port-mapping with no child elements must include an 'input-channel' attribute",
+                            flowConfigurationBuilder);
+		        }
+		        
+		        
+		        BeanDefinitionBuilder portConfigurationBuilder = BeanDefinitionBuilder
+                .genericBeanDefinition(ChannelNamePortConfiguration.class);
+		        
+		        portConfigurationBuilder.addConstructorArgValue(el.getAttribute("input-channel"));
+		        if (el.hasAttribute("output-channel")){
+		            portConfigurationBuilder.addConstructorArgValue(el.getAttribute("output-channel"));
+		        } else {
+		            portConfigurationBuilder.addConstructorArgValue(null);
+		        }
+		        portConfigList.add(portConfigurationBuilder.getBeanDefinition());
+		    }    
 		}
 
 		flowConfigurationBuilder.addConstructorArgValue(portConfigList);

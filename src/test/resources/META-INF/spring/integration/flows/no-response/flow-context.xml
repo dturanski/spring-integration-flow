@@ -10,9 +10,7 @@
 		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.0.xsd">
 
 	<int-flow:flow-configuration> 
-		<int-flow:port-mapping>
-			<int-flow:input-port name="input" channel="flow-input"/> 
-		</int-flow:port-mapping>
+		<int-flow:port-mapping input-channel="flow-input"/>  
 	</int-flow:flow-configuration>
 
 	<int:bridge input-channel="flow-input" output-channel="nullChannel"/>

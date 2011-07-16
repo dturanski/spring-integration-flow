@@ -19,54 +19,69 @@
 package org.springframework.integration.flow;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class ChannelNamePortConfiguration implements PortConfiguration {
 
-	private PortMetadata inputPortMetadata;
-	private List<PortMetadata> outputPortMetadataList;
+    private PortMetadata inputPortMetadata;
+    private List<PortMetadata> outputPortMetadataList;
 
-	public ChannelNamePortConfiguration(PortMetadata inputPortMetadata, List<PortMetadata> outputPortMetadataList) {
-		this.outputPortMetadataList = outputPortMetadataList; 
-		this.inputPortMetadata = inputPortMetadata;
-	}
+    public ChannelNamePortConfiguration(PortMetadata inputPortMetadata, List<PortMetadata> outputPortMetadataList) {
+        this.outputPortMetadataList = outputPortMetadataList;
+        this.inputPortMetadata = inputPortMetadata;
+    }
 
-	@Override
-	public String getInputPortName() {
-		return this.inputPortMetadata.getPortName();
-	}
+    public ChannelNamePortConfiguration(String inputChannelName, String outputChannelName) {
+        this.inputPortMetadata = new PortMetadata("input", inputChannelName);
 
-	@Override
-	public String getInputChannel() {
-		return this.inputPortMetadata.getChannelName();
-	}
-	
-	 
-	@Override
-	public String getOutputChannel(String portName) {
-		PortMetadata portMetadata = (PortMetadata) find(portName);
-		if (portMetadata != null) {
-			return portMetadata.getChannelName();
-		}
-		return null;
-	}
-
-	@Override
-	public List<String> getOutputPortNames() {
-		List<String> results = new ArrayList<String>();
-		for (PortMetadata portMetadata : outputPortMetadataList ) {
-			results.add(portMetadata.getPortName());
-		}
-		return results;
-	}
-	
-	public PortMetadata find(String portName){
-	    for (PortMetadata portMetadata : outputPortMetadataList ) {
-           if (portName.equals(portMetadata.getPortName())){
-               return portMetadata;
-           }
+        if (outputChannelName != null) {
+            PortMetadata outputPortMetadata = new PortMetadata("output", outputChannelName);
+            this.outputPortMetadataList = Collections.singletonList(outputPortMetadata);
+        } else {
+            // this.outputPortMetadataList = new ArrayList<PortMetadata>();
         }
-	    return null;
-	}
+    }
+
+    @Override
+    public String getInputPortName() {
+        return this.inputPortMetadata.getPortName();
+    }
+
+    @Override
+    public String getInputChannel() {
+        return this.inputPortMetadata.getChannelName();
+    }
+
+    @Override
+    public String getOutputChannel(String portName) {
+        PortMetadata portMetadata = (PortMetadata) findOutputPort(portName);
+        if (portMetadata != null) {
+            return portMetadata.getChannelName();
+        }
+        return null;
+    }
+
+    @Override
+    public List<String> getOutputPortNames() {
+        List<String> results = new ArrayList<String>();
+        if (outputPortMetadataList != null) {
+            for (PortMetadata portMetadata : outputPortMetadataList) {
+                results.add(portMetadata.getPortName());
+            }
+        }
+        return results;
+    }
+
+    private PortMetadata findOutputPort(String portName) {
+        if (outputPortMetadataList != null) {
+            for (PortMetadata portMetadata : outputPortMetadataList) {
+                if (portName.equals(portMetadata.getPortName())) {
+                    return portMetadata;
+                }
+            }
+        }
+        return null;
+    }
 
 }
