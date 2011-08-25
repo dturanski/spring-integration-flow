@@ -21,7 +21,6 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.integration.MessageChannel;
 import org.springframework.integration.config.AbstractSimpleMessageHandlerFactoryBean;
 import org.springframework.integration.core.MessageHandler;
-import org.springframework.integration.core.PollableChannel;
 import org.springframework.integration.flow.Flow;
 import org.springframework.integration.flow.PortConfiguration;
 import org.springframework.integration.flow.handler.FlowMessageHandler;
@@ -35,7 +34,8 @@ import org.springframework.util.Assert;
 public class FlowMessageHandlerFactoryBean extends AbstractSimpleMessageHandlerFactoryBean implements
 		InitializingBean {
 
-    private static Log logger = LogFactory.getLog(FlowMessageHandlerFactoryBean.class);
+    @SuppressWarnings("unused")
+	private static Log logger = LogFactory.getLog(FlowMessageHandlerFactoryBean.class);
     
 	private volatile Flow flow;
 
@@ -43,7 +43,7 @@ public class FlowMessageHandlerFactoryBean extends AbstractSimpleMessageHandlerF
 
 	private volatile long timeout;
 
-	private volatile PollableChannel flowReceiveChannel;
+	//private volatile DirectChannel flowOutputChannel;
 	
 	private volatile   PortConfiguration flowConfiguration;
 
@@ -52,8 +52,8 @@ public class FlowMessageHandlerFactoryBean extends AbstractSimpleMessageHandlerF
 	   
 		MessageChannel flowInputChannel = flow.resolveChannelName((String) flowConfiguration.getInputChannel());
 
-		FlowMessageHandler flowMessageHandler = new FlowMessageHandler(flowInputChannel, flowReceiveChannel, timeout);
-
+		FlowMessageHandler flowMessageHandler = new FlowMessageHandler(flowInputChannel, flow.getFlowOutputChannel(), timeout);
+		
 		return flowMessageHandler;
 	}
 
@@ -69,20 +69,7 @@ public class FlowMessageHandlerFactoryBean extends AbstractSimpleMessageHandlerF
 		this.timeout = timeout;
 	}
 
-	public void setFlowOutputChannel(PollableChannel flowOutputChannel) {
-		this.flowReceiveChannel = flowOutputChannel;
-	}
-
- 
- 
-
-	private void bridgeMessagingPorts( ) {
-	     logger.debug("creating handler bridge on  inputChannelName = ["
-	                + flow.getFlowOutputChannel() + "] outputChannel = [" + this.flowReceiveChannel + "]");
-	        
-		FlowUtils.bridgeChannels(this.flow.getFlowOutputChannel(), this.flowReceiveChannel);
-	}
-
+  
     @Override
     public void afterPropertiesSet() throws Exception {
        this.flowConfiguration = null;
@@ -98,9 +85,6 @@ public class FlowMessageHandlerFactoryBean extends AbstractSimpleMessageHandlerF
                 this.inputPortName);
         }
  
-        
-   
-        bridgeMessagingPorts();
     }
 
 }

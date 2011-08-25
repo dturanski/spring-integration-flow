@@ -17,11 +17,9 @@ package org.springframework.integration.flow.config.xml;
 
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.ParserContext;
-import org.springframework.integration.channel.QueueChannel;
 import org.springframework.integration.config.xml.AbstractConsumerEndpointParser;
 import org.springframework.integration.config.xml.IntegrationNamespaceUtils;
 import org.springframework.integration.flow.config.FlowMessageHandlerFactoryBean;
-import org.springframework.integration.flow.config.FlowUtils;
 import org.w3c.dom.Element;
 
 /**
@@ -42,12 +40,6 @@ public class FlowOutboundGatewayParser extends AbstractConsumerEndpointParser {
 		IntegrationNamespaceUtils.setValueIfAttributeDefined(flowHandlerBuilder, element, "input-port","inputPortName");
 		IntegrationNamespaceUtils.setValueIfAttributeDefined(flowHandlerBuilder, element, "timeout");
 		
-		BeanDefinitionBuilder flowOutputChannelBuilder = BeanDefinitionBuilder.genericBeanDefinition(QueueChannel.class);
-		String flowOutputChannelName = 
-			FlowUtils.registerBeanDefinition(flowOutputChannelBuilder.getBeanDefinition(), parserContext.getRegistry());
-		
-		flowHandlerBuilder.addPropertyReference("flowOutputChannel", flowOutputChannelName);
-
 		return flowHandlerBuilder;
 	}
 }

@@ -28,7 +28,7 @@
 		default-request-channel="requestChannel"
 	 
 		error-channel="errorChannel"
-		default-reply-timeout="1"/>
+		default-reply-timeout="100"/>
 		
 	<int:service-activator input-channel="requestChannel"   method="exception">
 		<bean class="org.springframework.integration.flow.config.xml.ExceptionBean"/>

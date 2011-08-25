@@ -15,8 +15,6 @@
  */
 package org.springframework.integration.flow.config.xml;
 
-import groovy.sql.OutParameter;
-
 import java.util.List;
 
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -25,7 +23,6 @@ import org.springframework.beans.factory.support.BeanDefinitionReaderUtils;
 import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
-import org.springframework.integration.config.xml.IntegrationNamespaceUtils;
 import org.springframework.integration.flow.ChannelNamePortConfiguration;
 import org.springframework.integration.flow.FlowConfiguration;
 import org.springframework.integration.flow.PortMetadata;
@@ -43,8 +40,7 @@ public class FlowConfigurationParser implements BeanDefinitionParser {
 	public BeanDefinition parse(Element element, ParserContext parserContext) {
 
 		List<Element> portMappings = DomUtils.getChildElementsByTagName(element, "port-mapping");
-		List<Element> portMappingRefs = DomUtils.getChildElementsByTagName(element, "port-mapping-ref");
-
+ 
 		BeanDefinitionBuilder flowConfigurationBuilder = BeanDefinitionBuilder
 				.genericBeanDefinition(FlowConfiguration.class);
 

@@ -15,8 +15,6 @@
         <int-flow:port-mapping input-channel="subflow-input" output-channel="subflow-output"/> 
     </int-flow:flow-configuration>
 
-
-	 
 	<!-- Throws exception -->	
 	<int:service-activator input-channel="subflow-input" output-channel="subflow-output" method="exception">
 		<bean class="org.springframework.integration.flow.config.xml.ExceptionBean"/>
