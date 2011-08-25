@@ -22,7 +22,7 @@
     <properties>
         <project.build.sourceEncoding>UTF8</project.build.sourceEncoding>
         <spring.framework.version>3.1.0.M2</spring.framework.version>
-        <spring.integration.version>2.0.4.RELEASE</spring.integration.version>
+        <spring.integration.version>2.1.0.BUILD-SNAPSHOT</spring.integration.version>
         <maven.test.search.classdir>true</maven.test.search.classdir>
     </properties>
     
@@ -32,7 +32,7 @@
 		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
-			<version>1.2.12</version>
+			<version>1.2.15</version>
 			<scope>test</scope>
 		</dependency>
 

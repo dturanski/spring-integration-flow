@@ -36,7 +36,12 @@ import org.springframework.integration.support.MessageBuilder;
  */
 public class FlowMessageHandler extends AbstractReplyProducingMessageHandler {
 
-    private static Log log = LogFactory.getLog(FlowMessageHandler.class);
+    /**
+	 * 
+	 */
+	private static final String FLOW_CONVERSATION_ID_HEADER = "flow.conversation.id";
+
+	private static Log log = LogFactory.getLog(FlowMessageHandler.class);
 
     private final MessageChannel flowInputChannel;
 
@@ -54,7 +59,7 @@ public class FlowMessageHandler extends AbstractReplyProducingMessageHandler {
     protected Object handleRequestMessage(Message<?> requestMessage) {
 
         UUID conversationId = requestMessage.getHeaders().getId();
-        Map<String, Object> flowConversationIdHeader = Collections.singletonMap("flow.conversation.id",
+        Map<String, Object> flowConversationIdHeader = Collections.singletonMap(FLOW_CONVERSATION_ID_HEADER,
                 (Object) conversationId);
          
         Message<?> message = MessageBuilder
@@ -69,14 +74,14 @@ public class FlowMessageHandler extends AbstractReplyProducingMessageHandler {
             flowInputChannel.send(message);
          
             while ((response = flowOutputChannel.receive(timeout)) != null) {
-                if (conversationId.equals(response.getHeaders().get("flow.conversation.id"))) {
+                if (conversationId.equals(response.getHeaders().get(FLOW_CONVERSATION_ID_HEADER))) {
                     return response;
                 } else {
                     
                     if (response.getPayload() instanceof MessagingException) {
                         MessagingException me = (MessagingException) response.getPayload();
                         log.debug("failed message: " + me.getFailedMessage());
-                        if (conversationId.equals(me.getFailedMessage().getHeaders().get("flow.conversation.id"))) {
+                        if (conversationId.equals(me.getFailedMessage().getHeaders().get(FLOW_CONVERSATION_ID_HEADER))) {
                             return response;
                         }
 
@@ -85,7 +90,7 @@ public class FlowMessageHandler extends AbstractReplyProducingMessageHandler {
             }
         } catch (MessagingException me) {
             log.error(me.getMessage(), me);
-            if (conversationId.equals(me.getFailedMessage().getHeaders().get("flow.conversation.id"))) {
+            if (conversationId.equals(me.getFailedMessage().getHeaders().get(FLOW_CONVERSATION_ID_HEADER))) {
                 return new ErrorMessage(me);
             }
         }

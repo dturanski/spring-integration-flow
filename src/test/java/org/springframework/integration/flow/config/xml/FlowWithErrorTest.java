@@ -61,8 +61,7 @@ public class FlowWithErrorTest {
 		
 		@Override
 		public void handleMessage(Message<?> message) throws MessagingException {
-			assertTrue( message.getPayload() instanceof MessagingException );
-			System.out.println("got error message");
+			assertTrue( message.getPayload() instanceof MessagingException ); 
 		}
 	});
 	  

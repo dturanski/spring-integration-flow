@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsd:schema xmlns="http://www.springframework.org/schema/integration/flow"
-    xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
-    xmlns:bean="http://www.springframework.org/schema/beans"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:bean="http://www.springframework.org/schema/beans"
     xmlns:int="http://www.springframework.org/schema/integration"
     xmlns:tool="http://www.springframework.org/schema/tool"
     targetNamespace="http://www.springframework.org/schema/integration/flow"
