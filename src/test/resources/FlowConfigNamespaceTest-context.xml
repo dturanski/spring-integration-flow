@@ -17,11 +17,7 @@
 		</int-flow:port-mapping>
 	</int-flow:flow-configuration>
 
-	<int-flow:port-mapping>
-		<int-flow:input-port name="input2" channel="subflow-input2" />
-		<int-flow:output-port name="output2" channel="subflow-output2" />
-	</int-flow:port-mapping>
-
+ 
 	<int-flow:flow-configuration>
 		<int-flow:port-mapping input-channel="inputChannel"
 			output-channel="outputChannel" />

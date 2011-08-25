@@ -18,7 +18,7 @@ package org.springframework.integration.flow;
 import java.util.Collection;
 
 /**
- * 
+ * Strategy interface for Port configurations
  * @author David Turanski
  * 
  */

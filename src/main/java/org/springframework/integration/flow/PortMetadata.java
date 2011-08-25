@@ -16,7 +16,8 @@
 package org.springframework.integration.flow;
 
 /**
- * 
+ * A container for defining a message port configuration used in a {@link Flow}.
+ * Binds a logical port name to a channel defined internally by the flow
  * @author David Turanski
  * 
  */

@@ -27,7 +27,7 @@ import org.springframework.integration.flow.handler.FlowMessageHandler;
 import org.springframework.util.Assert;
 
 /**
- * 
+ * Creates an instance of {@link FlowMessageHandler}
  * @author David Turanski
  * 
  */
@@ -57,14 +57,27 @@ public class FlowMessageHandlerFactoryBean extends AbstractSimpleMessageHandlerF
 		return flowMessageHandler;
 	}
 
+	/**
+	 * 
+	 * @param flow the flow handled by the FlowMessageHandler
+	 */
 	public void setFlow(Flow flow) {
 		this.flow = flow;
 	}
 
+	/**
+	 * 
+	 * @param inputPortName the flow input port associated with the handler. If not set
+	 * and the flow defines only one input port, that will be used by default.
+	 */
 	public void setInputPortName(String inputPortName) {
 		this.inputPortName = inputPortName;
 	}
 
+	/**
+	 * 
+	 * @param timeout send timeout for the handler
+	 */
 	public void setTimeout(long timeout) {
 		this.timeout = timeout;
 	}

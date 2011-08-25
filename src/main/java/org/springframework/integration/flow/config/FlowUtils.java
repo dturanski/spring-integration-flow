@@ -28,11 +28,26 @@ import org.springframework.integration.handler.BridgeHandler;
 import org.springframework.util.ResourceUtils;
 
 /**
+ * Utility functions used by the flow parsers
+ * 
  * @author David Turanski
  * 
  */
 public class FlowUtils {
-    /**
+	
+	/**
+	 * Message header indicating which port produced the flow output
+	 */
+	public static final String FLOW_OUTPUT_PORT_HEADER = "flow.output.port";
+	
+	/**
+	 * Message header used to correlate port input and output messages
+	 */
+	public static final String FLOW_CONVERSATION_ID_HEADER = "flow.conversation.id";
+	
+	private FlowUtils() {}
+    
+	/**
      * Create a bridge
      * 
      * @param inputChannel
@@ -65,9 +80,15 @@ public class FlowUtils {
         return beanName;
     }
 
-    public static String getDocumentation(String flowName) {
+    /**
+     * Read the flow documentation resource into a String if it exists. 
+     * The location is classpath:META-INF/spring/integration/flows/[flowId]/flow.doc
+     * @param flowId the flow id
+     * @return the documentation
+     */
+    public static String getDocumentation(String flowId) {
 
-        String path = String.format("classpath:META-INF/spring/integration/flows/%s/flow.doc", flowName);
+        String path = String.format("classpath:META-INF/spring/integration/flows/%s/flow.doc", flowId);
 
         try {
             File file = ResourceUtils.getFile(path);

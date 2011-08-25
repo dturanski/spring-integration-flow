@@ -23,10 +23,13 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.integration.Message;
 import org.springframework.integration.MessageChannel;
 import org.springframework.integration.channel.interceptor.ChannelInterceptorAdapter;
+import org.springframework.integration.flow.config.FlowUtils;
 import org.springframework.integration.support.MessageBuilder;
 
 /**
- * 
+ * A ChannelInterceptor to set the Flow output port header
+ * @see FlowUtils
+ *
  * @author David Turanski
  * 
  */
@@ -35,9 +38,11 @@ public class FlowInterceptor extends ChannelInterceptorAdapter {
 
 	private final String portName;
 
+	/**	 
+	 * @param portName the value of the message header
+	 */
 	public FlowInterceptor(String portName) {
 		this.portName = portName;
-
 	}
 
 	@Override
@@ -45,7 +50,7 @@ public class FlowInterceptor extends ChannelInterceptorAdapter {
 
 		log.debug("flow interceptor " + this.hashCode() + " received a message from port " + portName + " on channel "
 				+ channel);
-		Map<String, Object> headersToCopy = Collections.singletonMap("flow.output.port", (Object) portName);
+		Map<String, Object> headersToCopy = Collections.singletonMap(FlowUtils.FLOW_OUTPUT_PORT_HEADER, (Object) portName);
 		return MessageBuilder.fromMessage(message).copyHeadersIfAbsent(headersToCopy).build();
 
 	}

@@ -124,14 +124,6 @@
         </xsd:complexType>
     </xsd:element>
 
-    <xsd:element name="port-mapping" type="PortMappingType">
-        <xsd:annotation>
-            <xsd:documentation><![CDATA[
-				Defines an integration flow port mapping configuraiotn
-			]]></xsd:documentation>
-        </xsd:annotation>
-    </xsd:element>
-
     <xsd:complexType name="PortMappingType">
         <xsd:sequence>
             <xsd:element name="input-port" minOccurs="0"

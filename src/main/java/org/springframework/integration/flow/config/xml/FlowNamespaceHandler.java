@@ -29,7 +29,6 @@ public class FlowNamespaceHandler extends AbstractIntegrationNamespaceHandler {
 		registerBeanDefinitionParser("flow", new FlowParser());
 		registerBeanDefinitionParser("outbound-gateway", new FlowOutboundGatewayParser());
 		registerBeanDefinitionParser("flow-configuration", new FlowConfigurationParser());
-		registerBeanDefinitionParser("port-mapping", new FlowPortConfigurationParser());
-	}
+ 	}
 
 }

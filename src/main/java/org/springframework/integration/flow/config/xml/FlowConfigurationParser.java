@@ -30,6 +30,7 @@ import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Element;
 
 /**
+ * Parse the {@link FlowConfiguration}
  * 
  * @author David Turanski
  * 

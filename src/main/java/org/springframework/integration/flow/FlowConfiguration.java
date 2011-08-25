@@ -18,6 +18,8 @@ package org.springframework.integration.flow;
 import java.util.List;
 
 /**
+ * A container holding a {@link Flow} configuration. A flow configuration 
+ * may contain multiple {@link PortConfiguration}s
  * 
  * @author David Turanski
  * 
@@ -28,14 +30,14 @@ public class FlowConfiguration {
 	
 	/**
 	 * 
-	 * @param portConfigurations
+	 * @param portConfigurations  
 	 */ 
 	public FlowConfiguration(List<PortConfiguration> portConfigurations) {
 		this.portConfigurations = portConfigurations;
 	}
 
 	/**
-	 * 
+	 * Get the configuration by input port name
 	 * @param inputPortName
 	 * @return
 	 */
@@ -48,8 +50,8 @@ public class FlowConfiguration {
 		return null;
 	}
 	/**
-	 * 
-	 * @return
+	 * Get all port configurations
+	 * @return the port configurations
 	 */
 	public List<PortConfiguration> getPortConfigurations() {
 		return portConfigurations;

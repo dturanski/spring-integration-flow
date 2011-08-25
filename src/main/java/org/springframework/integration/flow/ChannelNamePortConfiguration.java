@@ -21,17 +21,31 @@ package org.springframework.integration.flow;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
+/**
+ * Container for {@link Flow} {@link PortConfiguration} metadata
+ * @author David Turanski
+ *
+ */
 public class ChannelNamePortConfiguration implements PortConfiguration {
 
     private PortMetadata inputPortMetadata;
     private List<PortMetadata> outputPortMetadataList;
-
+    
+    /**
+     * Generic configuration
+     * @param inputPortMetadata metadata defining the input message port
+     * @param outputPortMetadataList a list of metadata defining multiple output message ports 
+     */
     public ChannelNamePortConfiguration(PortMetadata inputPortMetadata, List<PortMetadata> outputPortMetadataList) {
         this.outputPortMetadataList = outputPortMetadataList;
         this.inputPortMetadata = inputPortMetadata;
     }
 
+    /**
+     * A simple configuration for a flow with one input and one output port
+     * @param inputChannelName
+     * @param outputChannelName
+     */
     public ChannelNamePortConfiguration(String inputChannelName, String outputChannelName) {
         this.inputPortMetadata = new PortMetadata("input", inputChannelName);
 
