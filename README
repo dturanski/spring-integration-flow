@@ -136,9 +136,7 @@ STDOUT if the 'help' attribute on the client's flow declaration is set to true.
 FlowMessageHandler Internals
 ------------------------------
 Currently, all defined outputs are automatically bridged to a PublishSubscribeChannel which acts as a single output channel for the flow. Each flow outbound-gateway instance 
-is backed by a FlowMessageHandler that bridges the flow output channel to its own QueueChannel instance. This emulates a JMS topic. Each FlowMessageHandler subscribes to the 
-flow. It sends the request message to the flows input channel mapped to the input port and checks its queue for a response. If there are multiple FlowMessageHandlers subscribed 
-to the flow, each receive a response on the flow output channel, a correlation id (flow conversation id) is internally generated to correlate the response message to the request message.
+is backed by a FlowMessageHandler that subscribes to the flow's common PublishSubscribeChannel. This emulates a JMS topic. Each FlowMessageHandler sends request messages to the input channel mapped to the flow's input port and forwards the response, if any to its output channel. If there are multiple FlowMessageHandlers subscribed to the flow, each receives a response from the flow. A correlation id (flow conversation id) is internally generated to correlate the response message to the request message.
 
 If the FlowMessageHandler catches an exception, it will convert it to an ErrorMessage response. Alternately, the flow can map its errorChannel to an output port
 
