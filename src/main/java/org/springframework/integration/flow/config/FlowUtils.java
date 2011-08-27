@@ -35,16 +35,6 @@ import org.springframework.util.ResourceUtils;
  */
 public class FlowUtils {
 	
-	/**
-	 * Message header indicating which port produced the flow output
-	 */
-	public static final String FLOW_OUTPUT_PORT_HEADER = "flow.output.port";
-	
-	/**
-	 * Message header used to correlate port input and output messages
-	 */
-	public static final String FLOW_CONVERSATION_ID_HEADER = "flow.conversation.id";
-	
 	private FlowUtils() {}
     
 	/**

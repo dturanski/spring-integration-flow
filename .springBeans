@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beansProjectDescription>
 	<version>1</version>
-	<pluginVersion><![CDATA[2.7.0.201107040453-RELEASE]]></pluginVersion>
+	<pluginVersion><![CDATA[2.8.0.201108100015-M1]]></pluginVersion>
 	<configSuffixes>
 		<configSuffix><![CDATA[xml]]></configSuffix>
 	</configSuffixes>
@@ -11,6 +11,8 @@
 		<config>src/test/resources/FlowClientNamespaceTest-context.xml</config>
 		<config>src/test/resources/ref-bean-config.xml</config>
 		<config>src/test/resources/META-INF/spring/integration/flows/subflow1/subflow1-context.xml</config>
+		<config>src/test/resources/TransactionalFlowTest-context.xml</config>
+		<config>src/test/resources/txmanager-config.xml</config>
 	</configs>
 	<configSets>
 	</configSets>

@@ -26,6 +26,7 @@ import org.springframework.integration.MessageChannel;
 import org.springframework.integration.MessagingException;
 import org.springframework.integration.core.MessageHandler;
 import org.springframework.integration.core.SubscribableChannel;
+import org.springframework.integration.flow.FlowConstants;
 import org.springframework.integration.flow.config.FlowUtils;
 import org.springframework.integration.handler.AbstractReplyProducingMessageHandler;
 import org.springframework.integration.message.ErrorMessage;
@@ -77,7 +78,7 @@ public class FlowMessageHandler extends AbstractReplyProducingMessageHandler {
 	protected Object handleRequestMessage(Message<?> requestMessage) {
 
 		UUID conversationId = requestMessage.getHeaders().getId();
-		Map<String, Object> flowConversationIdHeader = Collections.singletonMap(FlowUtils.FLOW_CONVERSATION_ID_HEADER,
+		Map<String, Object> flowConversationIdHeader = Collections.singletonMap(FlowConstants.FLOW_CONVERSATION_ID_HEADER,
 				(Object) conversationId);
 
 		Message<?> message = MessageBuilder.fromMessage(requestMessage).copyHeaders(flowConversationIdHeader)
@@ -95,8 +96,9 @@ public class FlowMessageHandler extends AbstractReplyProducingMessageHandler {
 		}
 		catch (MessagingException me) {
 			log.error(me.getMessage(), me);
-			if (conversationId.equals(me.getFailedMessage().getHeaders().get(FlowUtils.FLOW_CONVERSATION_ID_HEADER))) {
-				return new ErrorMessage(me);
+			if (conversationId.equals(me.getFailedMessage().getHeaders().get(FlowConstants.FLOW_CONVERSATION_ID_HEADER))) {
+				return new ErrorMessage(me,Collections.singletonMap(FlowConstants.FLOW_OUTPUT_PORT_HEADER,
+						(Object)FlowConstants.FLOW_HANDLER_EXCEPTION_HEADER_VALUE));
 			}
 		}
 		return null;
@@ -122,12 +124,12 @@ public class FlowMessageHandler extends AbstractReplyProducingMessageHandler {
 		@Override
 		public void handleMessage(Message<?> message) throws MessagingException {
 			
-			if (conversationId.equals(message.getHeaders().get(FlowUtils.FLOW_CONVERSATION_ID_HEADER))) {
+			if (conversationId.equals(message.getHeaders().get(FlowConstants.FLOW_CONVERSATION_ID_HEADER))) {
 				this.response = message;
 			} else {
 				if (message instanceof ErrorMessage){
 					MessagingException me = (MessagingException) message.getPayload();
-					if (conversationId.equals(me.getFailedMessage().getHeaders().get(FlowUtils.FLOW_CONVERSATION_ID_HEADER))) {
+					if (conversationId.equals(me.getFailedMessage().getHeaders().get(FlowConstants.FLOW_CONVERSATION_ID_HEADER))) {
 						this.response =  message;
 					}
 				}
