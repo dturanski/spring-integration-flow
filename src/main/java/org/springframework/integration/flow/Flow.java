@@ -1,5 +1,7 @@
 package org.springframework.integration.flow;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -8,6 +10,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.support.BeanDefinitionValidationException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -35,7 +38,7 @@ import org.springframework.util.StringUtils;
  * application context may be referenced or overridden in the flow application
  * context.
  * 
- * By convention the flow configuration resource locations are 
+ * By convention the flow configuration resource locations are
  * classpath:META-INF/spring/integration/flows/[flow-id]/*.xml
  * 
  * The flow-id defaults to the bean name if not set
@@ -116,14 +119,19 @@ public class Flow implements InitializingBean, BeanNameAware, ChannelResolver, A
 			configLocations = (String[]) ArrayUtils.addAll(configLocations, referencedBeanLocations);
 		}
 
-		logger.debug("instantiating flow context from configLocations ["
-				+ StringUtils.arrayToCommaDelimitedString(configLocations) + "]");
-
 		Assert.notEmpty(configLocations, "configLocations cannot be empty");
 
+		/*
+		 * create a child application context
+		 */
 		flowContext = new ClassPathXmlApplicationContext(applicationContext);
 
 		addReferencedProperties();
+
+		if (logger.isDebugEnabled()) {
+			logger.debug("instantiating flow context from configLocations ["
+					+ StringUtils.arrayToCommaDelimitedString(configLocations) + "]");
+		}
 
 		this.flowContext.setConfigLocations(configLocations);
 
@@ -160,9 +168,11 @@ public class Flow implements InitializingBean, BeanNameAware, ChannelResolver, A
 	public void setFlowId(String flowId) {
 		this.flowId = flowId;
 	}
+
 	/**
 	 * 
-	 * @param referencedBeanLocations Additional resource locations containing referenced bean definitions
+	 * @param referencedBeanLocations Additional resource locations containing
+	 * referenced bean definitions
 	 */
 	public void setReferencedBeanLocations(String[] referencedBeanLocations) {
 		this.referencedBeanLocations = referencedBeanLocations;
@@ -170,7 +180,8 @@ public class Flow implements InitializingBean, BeanNameAware, ChannelResolver, A
 
 	/**
 	 * 
-	 * @param flowProperties properties referenced in the flow definition property placeholders
+	 * @param flowProperties properties referenced in the flow definition
+	 * property placeholders
 	 */
 	public void setProperties(Properties flowProperties) {
 		this.flowProperties = flowProperties;
@@ -182,15 +193,17 @@ public class Flow implements InitializingBean, BeanNameAware, ChannelResolver, A
 
 	/**
 	 * 
-	 * @param help if true write the flow documentation to stdout
-	 * The default document location is "classpath:META-INF/spring/integration/flows/[flow-id]/flow.doc"
+	 * @param help if true write the flow documentation to stdout The default
+	 * document location is
+	 * "classpath:META-INF/spring/integration/flows/[flow-id]/flow.doc"
 	 */
 	public void setHelp(boolean help) {
 		this.help = help;
 	}
 
 	/**
-	 * All flow outputs defined in the {@link PortConfiguration} are bridged to a single PublishSubscribeChannel
+	 * All flow outputs defined in the {@link PortConfiguration} are bridged to
+	 * a single PublishSubscribeChannel
 	 * @return the publish-subscribe channel
 	 */
 	public PublishSubscribeChannel getFlowOutputChannel() {
@@ -198,7 +211,8 @@ public class Flow implements InitializingBean, BeanNameAware, ChannelResolver, A
 	}
 
 	/**
-	 * All flow outputs defined in the {@link PortConfiguration} are bridged to a single PublishSubscribeChannel
+	 * All flow outputs defined in the {@link PortConfiguration} are bridged to
+	 * a single PublishSubscribeChannel
 	 * @param the publish-subscribe channel
 	 */
 	public void setFlowOutputChannel(PublishSubscribeChannel flowOutputChannel) {
@@ -223,10 +237,50 @@ public class Flow implements InitializingBean, BeanNameAware, ChannelResolver, A
 	private void validatePortMapping() {
 		Assert.notEmpty(this.flowConfiguration.getPortConfigurations(),
 				"flow configuration contains no port configurations");
+
+		List<String> errors = new ArrayList<String>();
+		for (PortConfiguration portConfiguration : this.flowConfiguration.getPortConfigurations()) {
+			String inputChannelName = (String) portConfiguration.getInputChannel();
+			validateFlowChannelDefinition(inputChannelName, errors, false);
+
+			for (String outputPortName : portConfiguration.getOutputPortNames()) {
+				String outputChannelName = (String) portConfiguration.getOutputChannel(outputPortName);
+				validateFlowChannelDefinition(outputChannelName, errors, true);
+			}
+		}
+		if (errors.size() > 0 ) {
+			 
+			throw new BeanDefinitionValidationException("\n"+StringUtils.arrayToDelimitedString(errors.toArray(),"\n"));
+		}
+	}
+
+	/*
+	 * If flow context does not contain the bean definition then the definition
+	 * comes from the parent context. The flow should should still work with a
+	 * 'global' PublishSubscribeChannel output channel
+	 */
+	private void validateFlowChannelDefinition(String channelName, List<String> errors, boolean allowPubSub) {
+
+		MessageChannel channel = this.flowContext.getBean(channelName, MessageChannel.class);
+
+		if (!this.flowContext.containsBeanDefinition(channelName)) {
+			if (channel instanceof PublishSubscribeChannel && allowPubSub) {
+				 if (logger.isDebugEnabled()) {
+					 logger.warn("Flow '" +  this.flowId +"'" +
+						" is sharing the publish-subscribe channel '" + channelName +"'" + 
+						" with the parent context.");
+				 }
+			} else {
+				errors.add("The flow channel '"
+						+ channelName
+						+ "' in flow '"
+						+ this.flowId
+						+ "' conflicts with a bean definition in the parent context. It must be explicitly declared in the flow'");
+			}
+		}
 	}
 
 	private void bridgeMessagingPorts() {
-
 		/*
 		 * create a bridge for each target output port to the flow outputChannel
 		 */
@@ -247,6 +301,5 @@ public class Flow implements InitializingBean, BeanNameAware, ChannelResolver, A
 	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
 		this.applicationContext = applicationContext;
-
 	}
 }
