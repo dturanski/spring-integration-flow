@@ -17,9 +17,12 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionReaderUtils;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.integration.MessageChannel;
@@ -34,73 +37,107 @@ import org.springframework.util.ResourceUtils;
  * 
  */
 public class FlowUtils {
-	
-	private FlowUtils() {}
-    
+
+	private FlowUtils() {
+	}
+
 	/**
-     * Create a bridge
-     * 
-     * @param inputChannel
-     * @param outputChannel
-     */
+	 * Create a bridge
+	 * 
+	 * @param inputChannel
+	 * @param outputChannel
+	 */
 
-    public static void bridgeChannels(SubscribableChannel inputChannel, MessageChannel outputChannel) {
-        BridgeHandler bridgeHandler = new BridgeHandler();
-        bridgeHandler.setOutputChannel(outputChannel);
-        inputChannel.subscribe(bridgeHandler);
-    }
+	public static void bridgeChannels(SubscribableChannel inputChannel, MessageChannel outputChannel) {
+		BridgeHandler bridgeHandler = new BridgeHandler();
+		bridgeHandler.setOutputChannel(outputChannel);
+		inputChannel.subscribe(bridgeHandler);
+	}
 
-    /**
-     * Register a bean with "flow" prefix
-     * 
-     * @param beanDefinition
-     * @param registry
-     * @return
-     */
-    public static String registerBeanDefinition(BeanDefinition beanDefinition, BeanDefinitionRegistry registry) {
-        String beanName = BeanDefinitionReaderUtils.generateBeanName(beanDefinition, registry);
-        beanName = "flow." + beanName;
-        String strIndex = StringUtils.substringAfter(beanName, "#");
-        int index = Integer.valueOf(strIndex);
-        while (registry.isBeanNameInUse(beanName)) {
-            index++;
-            beanName = beanName.replaceAll("#\\d$", "#" + (index));
-        }
-        registry.registerBeanDefinition(beanName, beanDefinition);
-        return beanName;
-    }
+	/**
+	 * Register a bean with "flow" prefix
+	 * 
+	 * @param beanDefinition
+	 * @param registry
+	 * @return
+	 */
+	public static String registerBeanDefinition(BeanDefinition beanDefinition, BeanDefinitionRegistry registry) {
+		String beanName = BeanDefinitionReaderUtils.generateBeanName(beanDefinition, registry);
+		beanName = "flow." + beanName;
+		String strIndex = org.apache.commons.lang.StringUtils.substringAfter(beanName, "#");
+		int index = Integer.valueOf(strIndex);
+		while (registry.isBeanNameInUse(beanName)) {
+			index++;
+			beanName = beanName.replaceAll("#\\d$", "#" + (index));
+		}
+		registry.registerBeanDefinition(beanName, beanDefinition);
+		return beanName;
+	}
 
-    /**
-     * Read the flow documentation resource into a String if it exists. 
-     * The location is classpath:META-INF/spring/integration/flows/[flowId]/flow.doc
-     * @param flowId the flow id
-     * @return the documentation
-     */
-    public static String getDocumentation(String flowId) {
+	/**
+	 * Read the flow documentation resource into a String if it exists. The
+	 * location is classpath:META-INF/spring/integration/flows/[flowId]/flow.doc
+	 * @param flowId the flow id
+	 * @return the documentation
+	 */
+	public static String getDocumentation(String flowId) {
 
-        String path = String.format("classpath:META-INF/spring/integration/flows/%s/flow.doc", flowId);
+		String path = String.format("classpath:META-INF/spring/integration/flows/%s/flow.doc", flowId);
 
-        try {
-            File file = ResourceUtils.getFile(path);
+		try {
+			File file = ResourceUtils.getFile(path);
 
-            BufferedReader br = new BufferedReader(new FileReader(file));
+			BufferedReader br = new BufferedReader(new FileReader(file));
 
-            String line;
-            StringBuilder result = new StringBuilder();
-            while ((line = br.readLine()) != null) {
-                result.append(line).append("\n");
-            }
-            
-            br.close();
-            
-            return result.toString();
+			String line;
+			StringBuilder result = new StringBuilder();
+			while ((line = br.readLine()) != null) {
+				result.append(line).append("\n");
+			}
 
-        } catch (FileNotFoundException e) {
-            return "no help available";
-        } catch (IOException e) {
-            e.printStackTrace();
-            return "no help available";
-        }
-    }
+			br.close();
+
+			return result.toString();
+
+		}
+		catch (FileNotFoundException e) {
+			return "no help available";
+		}
+		catch (IOException e) {
+			e.printStackTrace();
+			return "no help available";
+		}
+	}
+
+	public static Set<String> getReferencedMessageChannels(ConfigurableListableBeanFactory beanFactory, int max) {
+		String[] beans = beanFactory.getBeanNamesForType(Object.class);
+		Set<String> messageChannels = new HashSet<String>();
+		_getReferencedMessageChannels(beanFactory, beans, messageChannels);
+		return Collections.unmodifiableSet(messageChannels);
+
+	}
+
+	private static void _getReferencedMessageChannels(ConfigurableListableBeanFactory beanFactory, String[] beans,
+			Set<String> messageChannels) {
+
+		for (String bean : beans) {
+			if (!bean.startsWith("(inner bean)") && !bean.equals("nullChannel")) {
+				Class<?> clazz = null;
+				if (beanFactory.containsBean(bean)) {
+					clazz = beanFactory.getType(bean);
+				}
+
+				if (clazz != null) {
+					if (MessageChannel.class.isAssignableFrom(clazz)) {
+						messageChannels.add(bean);
+					}
+					String[] dependencies = beanFactory.getDependenciesForBean(bean);
+					if (dependencies.length > 0) {
+						_getReferencedMessageChannels(beanFactory, dependencies, messageChannels);
+					}
+				}
+			}
+		}
+	}
 
 }

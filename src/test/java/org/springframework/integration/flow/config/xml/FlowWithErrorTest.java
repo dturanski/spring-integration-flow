@@ -28,7 +28,6 @@ import org.springframework.integration.core.MessageHandler;
 import org.springframework.integration.core.PollableChannel;
 import org.springframework.integration.core.SubscribableChannel;
 import org.springframework.integration.message.GenericMessage;
-
  
 /**
  * 
@@ -39,25 +38,25 @@ import org.springframework.integration.message.GenericMessage;
 public class FlowWithErrorTest { 
 	 
   @Test
-   public void testExceptionThrown(){
+   public void testFlowThrowsExceptionWithGatewayErrorChannel(){
 	  ApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:/FlowWithErrorTest-context.xml");
-	  MessageChannel input = applicationContext.getBean("inputC",MessageChannel.class);
-	  PollableChannel output = applicationContext.getBean("outputC",PollableChannel.class);
- 	  Message<String> msg = new GenericMessage<String>("hello"); 
- 	  input.send(msg);
-  
- 	  Message<?> reply = output.receive(100);
- 	  assertNotNull(reply);
- 	  assertTrue(reply.getPayload() instanceof MessagingException);
+	  MessageChannel inputChannel = applicationContext.getBean("inputC",MessageChannel.class);
+	  SubscribableChannel errorChannel = applicationContext.getBean("errorChannel",SubscribableChannel.class);
+ 	  Message<String> msg = new GenericMessage<String>("hello");
+ 	  Handler handler = new Handler();
+ 	  errorChannel.subscribe(handler);
+ 	  inputChannel.send(msg);
+ 	  assertTrue(handler.gotResponse);
+ 	  
    }
   
   @Test
   public void testDirectCallWithErrorChannel(){
 	  ApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:/META-INF/spring/integration/flows/subflow5/subflow5-context.xml");
-	  MessageChannel input = applicationContext.getBean("subflow-input",MessageChannel.class);
-	  SubscribableChannel error =  applicationContext.getBean("errorChannel",SubscribableChannel.class);
+	  MessageChannel inputChannel = applicationContext.getBean("subflow-input",MessageChannel.class);
+	  SubscribableChannel errorChannel =  applicationContext.getBean("errorChannel",SubscribableChannel.class);
 	   
-	  error.subscribe(new MessageHandler() {
+	  errorChannel.subscribe(new MessageHandler() {
 		
 		@Override
 		public void handleMessage(Message<?> message) throws MessagingException {
@@ -66,21 +65,36 @@ public class FlowWithErrorTest {
 	});
 	  
  	  Message<String> msg = new GenericMessage<String>("hello"); 
- 	  assertTrue(input.send(msg));
+ 	  assertTrue(inputChannel.send(msg));
    }
   
   
   @Test
   public void testWithErrorChannel(){
 	  ApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:/FlowWithErrorTest-context.xml");
-	  MessageChannel input = applicationContext.getBean("inputC1",MessageChannel.class);
+	  MessageChannel inputChannel = applicationContext.getBean("inputC1",MessageChannel.class);
 	  PollableChannel output = applicationContext.getBean("outputC1",PollableChannel.class);
 	  Message<String> msg = new GenericMessage<String>("hello"); 
-	  input.send(msg);
+	  inputChannel.send(msg);
  
 	  Message<?> reply = output.receive(100);
 	  assertNotNull(reply);
 	  assertTrue(reply.getPayload() instanceof MessagingException);
+  }
+  
+  private static class Handler implements MessageHandler {
+	  public boolean gotResponse;
+	  @SuppressWarnings("unused")
+	public Message<?> message;
+	/* (non-Javadoc)
+	 * @see org.springframework.integration.core.MessageHandler#handleMessage(org.springframework.integration.Message)
+	 */
+	@Override
+	public void handleMessage(Message<?> message) throws MessagingException {
+		this.gotResponse = true;
+		this.message = message; 
+	}
+	  
   }
   
   

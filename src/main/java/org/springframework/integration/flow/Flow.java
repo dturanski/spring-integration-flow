@@ -1,8 +1,10 @@
 package org.springframework.integration.flow;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
@@ -121,6 +123,7 @@ public class Flow implements InitializingBean, BeanNameAware, ChannelResolver, A
 
 		Assert.notEmpty(configLocations, "configLocations cannot be empty");
 
+	 
 		/*
 		 * create a child application context
 		 */
@@ -231,54 +234,33 @@ public class Flow implements InitializingBean, BeanNameAware, ChannelResolver, A
 			MutablePropertySources propertySources = flowContext.getEnvironment().getPropertySources();
 			propertySources.addLast(propertySource);
 		}
-
 	}
 
 	private void validatePortMapping() {
 		Assert.notEmpty(this.flowConfiguration.getPortConfigurations(),
 				"flow configuration contains no port configurations");
 
+		/*
+		 * Verify that no channels in the flow context are shared in the parent context
+		 */
 		List<String> errors = new ArrayList<String>();
-		for (PortConfiguration portConfiguration : this.flowConfiguration.getPortConfigurations()) {
-			String inputChannelName = (String) portConfiguration.getInputChannel();
-			validateFlowChannelDefinition(inputChannelName, errors, false);
-
-			for (String outputPortName : portConfiguration.getOutputPortNames()) {
-				String outputChannelName = (String) portConfiguration.getOutputChannel(outputPortName);
-				validateFlowChannelDefinition(outputChannelName, errors, true);
+		 	
+		List<String> channelNames = Arrays.asList(this.flowContext.getBeanNamesForType(MessageChannel.class));
+	 
+		Set<String> referencedMessageChannels = FlowUtils.getReferencedMessageChannels(this.flowContext.getBeanFactory(),5);
+		
+		for (String referencedMessageChannel: referencedMessageChannels) {
+			if (!channelNames.contains(referencedMessageChannel)) {
+				errors.add("Flow references channel [" + referencedMessageChannel + "] defined in the parent context. " + 
+						"This channel should be explicitly defined in the flow context");
 			}
 		}
+	 
 		if (errors.size() > 0 ) {
-			 
 			throw new BeanDefinitionValidationException("\n"+StringUtils.arrayToDelimitedString(errors.toArray(),"\n"));
 		}
 	}
-
-	/*
-	 * If flow context does not contain the bean definition then the definition
-	 * comes from the parent context. The flow should should still work with a
-	 * 'global' PublishSubscribeChannel output channel
-	 */
-	private void validateFlowChannelDefinition(String channelName, List<String> errors, boolean allowPubSub) {
-
-		MessageChannel channel = this.flowContext.getBean(channelName, MessageChannel.class);
-
-		if (!this.flowContext.containsBeanDefinition(channelName)) {
-			if (channel instanceof PublishSubscribeChannel && allowPubSub) {
-				 if (logger.isDebugEnabled()) {
-					 logger.warn("Flow '" +  this.flowId +"'" +
-						" is sharing the publish-subscribe channel '" + channelName +"'" + 
-						" with the parent context.");
-				 }
-			} else {
-				errors.add("The flow channel '"
-						+ channelName
-						+ "' in flow '"
-						+ this.flowId
-						+ "' conflicts with a bean definition in the parent context. It must be explicitly declared in the flow'");
-			}
-		}
-	}
+ 
 
 	private void bridgeMessagingPorts() {
 		/*

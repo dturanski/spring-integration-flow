@@ -35,6 +35,7 @@
 	</int:service-activator>	
    
    <int:channel id="subflow-output"/>
-  
+   
+  	<int:publish-subscribe-channel id="errorChannel"/>	
 	 
 </beans>

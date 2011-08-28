@@ -40,6 +40,8 @@ public class FlowMessageHandlerFactoryBean extends AbstractSimpleMessageHandlerF
 	private volatile Flow flow;
 
 	private volatile String inputPortName;
+	
+	private volatile MessageChannel errorChannel;
 
 	private volatile long timeout;
 
@@ -53,6 +55,8 @@ public class FlowMessageHandlerFactoryBean extends AbstractSimpleMessageHandlerF
 		MessageChannel flowInputChannel = flow.resolveChannelName((String) flowConfiguration.getInputChannel());
 
 		FlowMessageHandler flowMessageHandler = new FlowMessageHandler(flowInputChannel, flow.getFlowOutputChannel(), timeout);
+		
+		flowMessageHandler.setErrorChannel(this.errorChannel);
 		
 		return flowMessageHandler;
 	}
@@ -81,6 +85,14 @@ public class FlowMessageHandlerFactoryBean extends AbstractSimpleMessageHandlerF
 	public void setTimeout(long timeout) {
 		this.timeout = timeout;
 	}
+	
+	/**
+	 * 
+	 * @param errorChannel
+	 */
+	public void setErrorChannel(MessageChannel errorChannel) {
+		this.errorChannel = errorChannel;
+	}
 
   
     @Override
@@ -97,7 +109,6 @@ public class FlowMessageHandlerFactoryBean extends AbstractSimpleMessageHandlerF
            this.flowConfiguration = this.flow.getFlowConfiguration().getConfigurationForInputPort(
                 this.inputPortName);
         }
- 
     }
 
 }

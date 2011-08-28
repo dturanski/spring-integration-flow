@@ -10,7 +10,8 @@
 	<int-flow:flow id="transactional-flow"/>
 	
 	<int-flow:outbound-gateway flow="transactional-flow" 
-		input-channel="inputC" output-channel="outputC"/> 
+		input-channel="inputC" output-channel="outputC"
+		error-channel="errorChannel"/> 
 	
 	<int:channel id="outputC"/>
 	

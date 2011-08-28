@@ -39,6 +39,7 @@ public class FlowOutboundGatewayParser extends AbstractConsumerEndpointParser {
 	 
 		IntegrationNamespaceUtils.setValueIfAttributeDefined(flowHandlerBuilder, element, "input-port","inputPortName");
 		IntegrationNamespaceUtils.setValueIfAttributeDefined(flowHandlerBuilder, element, "timeout");
+		IntegrationNamespaceUtils.setReferenceIfAttributeDefined(flowHandlerBuilder, element, "error-channel");
 		
 		return flowHandlerBuilder;
 	}

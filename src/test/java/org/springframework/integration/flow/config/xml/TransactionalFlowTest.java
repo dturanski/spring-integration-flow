@@ -87,14 +87,14 @@ public class TransactionalFlowTest {
 	}
 	
 	@Test 
-	public void testFlowRollback() {
+	public void testFlowRollbackWithGatewayErrorChannel() {
 		ApplicationContext applicationContext = 
 			new ClassPathXmlApplicationContext("/TransactionalFlowTest-context.xml","/txmanager-config.xml");
 		MessageChannel inputChannel = applicationContext.getBean("inputC", MessageChannel.class);
-		SubscribableChannel outputChannel = applicationContext.getBean("outputC", SubscribableChannel.class);
+		SubscribableChannel errorChannel = applicationContext.getBean("errorChannel", SubscribableChannel.class);
 		StubTransactionManager transactionManager = applicationContext.getBean(StubTransactionManager.class);
 		Handler handler = new Handler();
-		outputChannel.subscribe(handler);
+		errorChannel.subscribe(handler);
 		 
 		inputChannel.send(new GenericMessage<String>("rollback"));
 		 

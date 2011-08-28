@@ -9,17 +9,16 @@
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.1.xsd">
 
- 
 	<int-flow:flow id="subflow4"/>
+	<int-flow:flow id="subflow5"/>
 	
 	<int-flow:outbound-gateway 
 		flow="subflow4" 
 		input-port="input"
 		input-channel="inputC"
-		output-channel="outputC"/>
-		
-		
-	<int-flow:flow id="subflow5"/>
+		output-channel="outputC"
+		error-channel="errorChannel"/>	
+	
 	
 	<int-flow:outbound-gateway 
 		flow="subflow5" 

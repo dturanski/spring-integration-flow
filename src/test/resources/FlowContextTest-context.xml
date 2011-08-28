@@ -13,7 +13,8 @@
     <!-- input port not required if only one -->
 	<int-flow:outbound-gateway flow="subflow" 
 		input-channel="inputC"
-		output-channel="outputC"/>
+		output-channel="outputC"
+		/>
 	
 	<int:channel id="outputC"/>
 	 
