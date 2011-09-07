@@ -4,6 +4,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 
 import org.junit.Test;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.integration.Message;
 import org.springframework.integration.channel.DirectChannel;
 import org.springframework.integration.channel.PublishSubscribeChannel;
@@ -35,6 +37,12 @@ public class FlowUtilsTest {
         assertNotNull(result);
         assertSame(message, result);
        
+    }
+    
+    @Test
+    public void displayDependencies() {
+    	ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext("META-INF/spring/integration/flows/subflow5/subflow5-context.xml");
+    	FlowUtils.displayBeansGraph(ctx.getBeanFactory());
     }
 
 }

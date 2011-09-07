@@ -13,6 +13,9 @@
 		<config>src/test/resources/META-INF/spring/integration/flows/subflow1/subflow1-context.xml</config>
 		<config>src/test/resources/TransactionalFlowTest-context.xml</config>
 		<config>src/test/resources/txmanager-config.xml</config>
+		<config>src/test/resources/autowired-referenced-beans.xml</config>
+		<config>src/test/resources/META-INF/spring/integration/flows/autowired/autowired-flow-context.xml</config>
+		<config>src/test/resources/FlowWithAutowireTest-context.xml</config>
 	</configs>
 	<configSets>
 	</configSets>

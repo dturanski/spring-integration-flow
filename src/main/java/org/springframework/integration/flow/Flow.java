@@ -12,6 +12,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionValidationException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -139,7 +140,10 @@ public class Flow implements InitializingBean, BeanNameAware, ChannelResolver, A
 		this.flowContext.setConfigLocations(configLocations);
 
 		this.flowContext.refresh();
-
+		
+		// Deep debug
+		// FlowUtils.displayBeansGraph(flowContext.getBeanFactory());
+		//
 		this.flowConfiguration = flowContext.getBean(FlowConfiguration.class);
 		Assert.notNull(flowConfiguration, "flow context does not contain a flow configuration");
 
@@ -247,7 +251,7 @@ public class Flow implements InitializingBean, BeanNameAware, ChannelResolver, A
 		 	
 		List<String> channelNames = Arrays.asList(this.flowContext.getBeanNamesForType(MessageChannel.class));
 	 
-		Set<String> referencedMessageChannels = FlowUtils.getReferencedMessageChannels(this.flowContext.getBeanFactory(),5);
+		Set<String> referencedMessageChannels = FlowUtils.getReferencedMessageChannels(this.flowContext.getBeanFactory());
 		
 		for (String referencedMessageChannel: referencedMessageChannels) {
 			if (!channelNames.contains(referencedMessageChannel)) {
