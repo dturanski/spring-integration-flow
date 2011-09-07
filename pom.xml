@@ -207,5 +207,9 @@
 			<id>maven_springframework_milestone</id>
 			<url>http://maven.springframework.org/milestone</url>
 		</repository>
+		<repository>
+			<id>maven_springframework_snapshot</id>
+			<url>http://maven.springframework.org/snapshot</url>
+		</repository>
 	</repositories>
 </project>
