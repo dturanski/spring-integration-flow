@@ -12,7 +12,6 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionValidationException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -124,7 +123,6 @@ public class Flow implements InitializingBean, BeanNameAware, ChannelResolver, A
 
 		Assert.notEmpty(configLocations, "configLocations cannot be empty");
 
-	 
 		/*
 		 * create a child application context
 		 */
@@ -140,7 +138,7 @@ public class Flow implements InitializingBean, BeanNameAware, ChannelResolver, A
 		this.flowContext.setConfigLocations(configLocations);
 
 		this.flowContext.refresh();
-		
+
 		// Deep debug
 		// FlowUtils.displayBeansGraph(flowContext.getBeanFactory());
 		//
@@ -245,26 +243,28 @@ public class Flow implements InitializingBean, BeanNameAware, ChannelResolver, A
 				"flow configuration contains no port configurations");
 
 		/*
-		 * Verify that no channels in the flow context are shared in the parent context
+		 * Verify that no channels in the flow context are shared in the parent
+		 * context
 		 */
 		List<String> errors = new ArrayList<String>();
-		 	
+
 		List<String> channelNames = Arrays.asList(this.flowContext.getBeanNamesForType(MessageChannel.class));
-	 
-		Set<String> referencedMessageChannels = FlowUtils.getReferencedMessageChannels(this.flowContext.getBeanFactory());
-		
-		for (String referencedMessageChannel: referencedMessageChannels) {
+
+		Set<String> referencedMessageChannels = FlowUtils.getReferencedMessageChannels(this.flowContext
+				.getBeanFactory());
+
+		for (String referencedMessageChannel : referencedMessageChannels) {
 			if (!channelNames.contains(referencedMessageChannel)) {
-				errors.add("Flow references channel [" + referencedMessageChannel + "] defined in the parent context. " + 
-						"This channel should be explicitly defined in the flow context");
+				errors.add("Flow references channel [" + referencedMessageChannel + "] defined in the parent context. "
+						+ "This channel should be explicitly defined in the flow context");
 			}
 		}
-	 
-		if (errors.size() > 0 ) {
-			throw new BeanDefinitionValidationException("\n"+StringUtils.arrayToDelimitedString(errors.toArray(),"\n"));
+
+		if (errors.size() > 0) {
+			throw new BeanDefinitionValidationException("\n"
+					+ StringUtils.arrayToDelimitedString(errors.toArray(), "\n"));
 		}
 	}
- 
 
 	private void bridgeMessagingPorts() {
 		/*
@@ -287,5 +287,9 @@ public class Flow implements InitializingBean, BeanNameAware, ChannelResolver, A
 	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
 		this.applicationContext = applicationContext;
+	}
+
+	public ApplicationContext getFlowContext() {
+		return this.flowContext;
 	}
 }
