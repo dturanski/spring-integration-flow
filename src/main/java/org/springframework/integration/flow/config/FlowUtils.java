@@ -17,11 +17,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -32,7 +30,6 @@ import org.springframework.integration.MessageChannel;
 import org.springframework.integration.core.SubscribableChannel;
 import org.springframework.integration.handler.BridgeHandler;
 import org.springframework.util.ResourceUtils;
-import org.springframework.util.StringUtils;
 
 /**
  * Utility functions used by the flow parsers
@@ -128,10 +125,11 @@ public class FlowUtils {
 			int index = 0;
 			for (String dependency : dependencies) {
 				if (!dependency.equals(beans[i])) {
-					
+
 					depsArray[index++] = dependency;
-				} else {
-					System.out.println(indent(level+1) + beans[i]);
+				}
+				else {
+					System.out.println(indent(level + 1) + beans[i]);
 				}
 			}
 			if (depsArray.length > 0) {

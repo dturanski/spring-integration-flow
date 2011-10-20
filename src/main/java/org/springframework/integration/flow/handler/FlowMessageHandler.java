@@ -110,9 +110,10 @@ public class FlowMessageHandler extends AbstractReplyProducingMessageHandler {
 					errorChannel.send(new ErrorMessage(me, Collections.singletonMap(
 							FlowConstants.FLOW_OUTPUT_PORT_HEADER,
 							(Object) FlowConstants.FLOW_HANDLER_EXCEPTION_HEADER_VALUE)));
-				} else {
-					throw me;
+				
 				}
+			} else {
+				throw me;
 			}
 		}
 		return null;
