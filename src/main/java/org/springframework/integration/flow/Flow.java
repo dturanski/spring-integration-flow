@@ -70,7 +70,7 @@ public class Flow implements InitializingBean, BeanNameAware, ChannelResolver, A
 
 	private volatile ChannelResolver flowChannelResolver;
 
-	private volatile PublishSubscribeChannel flowOutputChannel;
+	private volatile SubscribableChannel flowOutputChannel;
 
 	private volatile boolean help;
 
@@ -211,7 +211,7 @@ public class Flow implements InitializingBean, BeanNameAware, ChannelResolver, A
 	 * a single PublishSubscribeChannel
 	 * @return the publish-subscribe channel
 	 */
-	public PublishSubscribeChannel getFlowOutputChannel() {
+	public SubscribableChannel getFlowOutputChannel() {
 		return flowOutputChannel;
 	}
 
@@ -220,8 +220,8 @@ public class Flow implements InitializingBean, BeanNameAware, ChannelResolver, A
 	 * a single PublishSubscribeChannel
 	 * @param the publish-subscribe channel
 	 */
-	public void setFlowOutputChannel(PublishSubscribeChannel flowOutputChannel) {
-		this.flowOutputChannel = flowOutputChannel;
+	public void setFlowOutputChannel(SubscribableChannel flowOutputChannel) {
+		this.flowOutputChannel =  flowOutputChannel;
 	}
 
 	@Override

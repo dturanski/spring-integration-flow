@@ -32,4 +32,12 @@ public class FlowContextTest {
 		  throw e;
 	  }
 	}
+	
+	@Test 
+	public void testFlowWithJMX() {
+	  
+		new ClassPathXmlApplicationContext("/FlowContextWithJMXTest-context.xml");
+	  
+	}
+ 
 }

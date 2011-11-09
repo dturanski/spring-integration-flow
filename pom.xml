@@ -21,7 +21,7 @@
     
     <properties>
         <project.build.sourceEncoding>UTF8</project.build.sourceEncoding>
-        <spring.framework.version>3.1.0.M2</spring.framework.version>
+        <spring.framework.version>3.1.0.RC1</spring.framework.version>
         <spring.integration.version>2.1.0.M2</spring.integration.version>
         <maven.test.search.classdir>true</maven.test.search.classdir>
     </properties>
@@ -77,6 +77,12 @@
 			<artifactId>spring-integration-core</artifactId>
 			<version>${spring.integration.version}</version>
 		</dependency>
+            <dependency>
+            <groupId>org.springframework.integration</groupId>
+            <artifactId>spring-integration-jmx</artifactId>
+            <version>${spring.integration.version}</version>
+            <scope>test</scope>
+        </dependency>
 
 		<dependency>
 			<groupId>org.springframework</groupId>
@@ -187,9 +193,6 @@
 								</groovyc>
 							</tasks>
 						</configuration>
-						<goals>
-							<goal>run</goal>
-						</goals>
 					</execution>
 				</executions>
 			</plugin>
