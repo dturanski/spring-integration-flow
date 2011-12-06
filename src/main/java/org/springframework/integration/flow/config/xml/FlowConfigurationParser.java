@@ -37,66 +37,63 @@ import org.w3c.dom.Element;
  */
 public class FlowConfigurationParser implements BeanDefinitionParser {
 
-	@Override
 	public BeanDefinition parse(Element element, ParserContext parserContext) {
 
 		List<Element> portMappings = DomUtils.getChildElementsByTagName(element, "port-mapping");
- 
+
 		BeanDefinitionBuilder flowConfigurationBuilder = BeanDefinitionBuilder
 				.genericBeanDefinition(FlowConfiguration.class);
 
 		ManagedList<Object> portConfigList = new ManagedList<Object>();
 
 		for (Element el : portMappings) {
-		    if (!DomUtils.getChildElements(el).isEmpty()){
-		        if (el.hasAttribute("input-channel") || el.hasAttribute("output-channel")){
-		            parserContext.getReaderContext().error(
-		                    "port-mapping cannot include both channel attributes and child elements",
-		                    flowConfigurationBuilder);
-		        }
-		        BeanDefinition portConfiguration = buildFlowProviderPortConfiguration(el, parserContext);
-		        portConfigList.add(portConfiguration);
-		    }
-		    else 
-		    {
-		        // A default port configuration 
-		        if (!(el.hasAttribute("input-channel"))){
-		            parserContext.getReaderContext().error(
-                            "port-mapping with no child elements must include an 'input-channel' attribute",
-                            flowConfigurationBuilder);
-		        }
-		        
-		        
-		        BeanDefinitionBuilder portConfigurationBuilder = BeanDefinitionBuilder
-                .genericBeanDefinition(ChannelNamePortConfiguration.class);
-		        
-		        portConfigurationBuilder.addConstructorArgValue(el.getAttribute("input-channel"));
-		        if (el.hasAttribute("output-channel")){
-		            portConfigurationBuilder.addConstructorArgValue(el.getAttribute("output-channel"));
-		        } else {
-		            portConfigurationBuilder.addConstructorArgValue(null);
-		        }
-		        portConfigList.add(portConfigurationBuilder.getBeanDefinition());
-		    }    
+			if (!DomUtils.getChildElements(el).isEmpty()) {
+				if (el.hasAttribute("input-channel") || el.hasAttribute("output-channel")) {
+					parserContext.getReaderContext().error(
+							"port-mapping cannot include both channel attributes and child elements",
+							flowConfigurationBuilder);
+				}
+				BeanDefinition portConfiguration = buildFlowProviderPortConfiguration(el, parserContext);
+				portConfigList.add(portConfiguration);
+			}
+			else {
+				// A default port configuration
+				if (!(el.hasAttribute("input-channel"))) {
+					parserContext.getReaderContext().error(
+							"port-mapping with no child elements must include an 'input-channel' attribute",
+							flowConfigurationBuilder);
+				}
+
+				BeanDefinitionBuilder portConfigurationBuilder = BeanDefinitionBuilder
+						.genericBeanDefinition(ChannelNamePortConfiguration.class);
+
+				portConfigurationBuilder.addConstructorArgValue(el.getAttribute("input-channel"));
+				if (el.hasAttribute("output-channel")) {
+					portConfigurationBuilder.addConstructorArgValue(el.getAttribute("output-channel"));
+				}
+				else {
+					portConfigurationBuilder.addConstructorArgValue(null);
+				}
+				portConfigList.add(portConfigurationBuilder.getBeanDefinition());
+			}
 		}
 
 		flowConfigurationBuilder.addConstructorArgValue(portConfigList);
 
-
 		BeanDefinitionReaderUtils.registerWithGeneratedName(flowConfigurationBuilder.getBeanDefinition(),
-				parserContext.getRegistry());		
-		
+				parserContext.getRegistry());
+
 		return null;
 	}
 
 	private BeanDefinition buildFlowProviderPortConfiguration(Element el, ParserContext parserContext) {
 		Element inputPortEl = DomUtils.getChildElementByTagName(el, "input-port");
-		 
+
 		BeanDefinitionBuilder portConfigurationBuilder = BeanDefinitionBuilder
 				.genericBeanDefinition(ChannelNamePortConfiguration.class);
 
 		BeanDefinition portMetadata = this.buildPortMetadata(el, inputPortEl);
-		
+
 		portConfigurationBuilder.addConstructorArgValue(portMetadata);
 
 		List<Element> outputPortElements = DomUtils.getChildElementsByTagName(el, "output-port");
@@ -115,11 +112,10 @@ public class FlowConfigurationParser implements BeanDefinitionParser {
 
 		return portConfigurationBuilder.getBeanDefinition();
 	}
-	
-	 
+
 	private BeanDefinition buildPortMetadata(Element element, Element portElement) {
 		BeanDefinitionBuilder portMetadataBuilder = BeanDefinitionBuilder.genericBeanDefinition(PortMetadata.class);
-		portMetadataBuilder.addConstructorArgValue(portElement.getAttribute("name")); 
+		portMetadataBuilder.addConstructorArgValue(portElement.getAttribute("name"));
 		portMetadataBuilder.addConstructorArgValue(portElement.getAttribute("channel"));
 		return portMetadataBuilder.getBeanDefinition();
 	}

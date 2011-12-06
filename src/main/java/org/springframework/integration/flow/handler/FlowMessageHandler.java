@@ -86,14 +86,15 @@ public class FlowMessageHandler extends AbstractReplyProducingMessageHandler {
 	@Override
 	protected Object handleRequestMessage(Message<?> requestMessage) {
 
-		UUID conversationId = requestMessage.getHeaders().getId();
-		Map<String, Object> flowConversationIdHeader = Collections.singletonMap(
-				FlowConstants.FLOW_CONVERSATION_ID_HEADER, (Object) conversationId);
-
-		Message<?> message = MessageBuilder.fromMessage(requestMessage).copyHeaders(flowConversationIdHeader)
-
-		.build();
-
+	    Message<?> message = requestMessage;
+	    UUID conversationId = (UUID) message.getHeaders().get(FlowConstants.FLOW_CONVERSATION_ID_HEADER);
+		if (conversationId == null) {
+			conversationId = requestMessage.getHeaders().getId();
+			Map<String, Object> flowConversationIdHeader = Collections.singletonMap(
+					FlowConstants.FLOW_CONVERSATION_ID_HEADER, (Object) conversationId);
+			message = MessageBuilder.fromMessage(requestMessage).copyHeaders(flowConversationIdHeader).build();
+		} 
+		
 		try {
 
 			ResponseMessageHandler responseMessageHandler = new ResponseMessageHandler(conversationId);
@@ -110,9 +111,10 @@ public class FlowMessageHandler extends AbstractReplyProducingMessageHandler {
 					errorChannel.send(new ErrorMessage(me, Collections.singletonMap(
 							FlowConstants.FLOW_OUTPUT_PORT_HEADER,
 							(Object) FlowConstants.FLOW_HANDLER_EXCEPTION_HEADER_VALUE)));
-				
+
 				}
-			} else {
+			}
+			else {
 				throw me;
 			}
 		}
@@ -138,15 +140,16 @@ public class FlowMessageHandler extends AbstractReplyProducingMessageHandler {
 		 * org.springframework.integration.core.MessageHandler#handleMessage
 		 * (org.springframework.integration.Message)
 		 */
-		@Override
 		public void handleMessage(Message<?> message) throws MessagingException {
-
+    
 			if (conversationId.equals(message.getHeaders().get(FlowConstants.FLOW_CONVERSATION_ID_HEADER))) {
 				this.response = message;
 			}
 			else {
+				
 				/*
-				 * Response from flow's ErrorChannel which is mapped to an output port.
+				 * Response from flow's ErrorChannel which is mapped to an
+				 * output port.
 				 */
 				if (message instanceof ErrorMessage) {
 					MessagingException me = (MessagingException) message.getPayload();

@@ -20,7 +20,6 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.integration.MessageChannel;
 import org.springframework.integration.config.AbstractSimpleMessageHandlerFactoryBean;
-import org.springframework.integration.core.MessageHandler;
 import org.springframework.integration.flow.Flow;
 import org.springframework.integration.flow.PortConfiguration;
 import org.springframework.integration.flow.handler.FlowMessageHandler;
@@ -31,33 +30,34 @@ import org.springframework.util.Assert;
  * @author David Turanski
  * 
  */
-public class FlowMessageHandlerFactoryBean extends AbstractSimpleMessageHandlerFactoryBean implements
-		InitializingBean {
+public class FlowMessageHandlerFactoryBean extends AbstractSimpleMessageHandlerFactoryBean
+		implements InitializingBean {
 
-    @SuppressWarnings("unused")
+	@SuppressWarnings("unused")
 	private static Log logger = LogFactory.getLog(FlowMessageHandlerFactoryBean.class);
-    
+
 	private volatile Flow flow;
 
 	private volatile String inputPortName;
-	
+
 	private volatile MessageChannel errorChannel;
 
 	private volatile long timeout;
 
-	//private volatile DirectChannel flowOutputChannel;
-	
-	private volatile   PortConfiguration flowConfiguration;
+	// private volatile DirectChannel flowOutputChannel;
+
+	private volatile PortConfiguration flowConfiguration;
 
 	@Override
-	protected MessageHandler createHandler() {
-	   
+	protected FlowMessageHandler createHandler() {
+
 		MessageChannel flowInputChannel = flow.resolveChannelName((String) flowConfiguration.getInputChannel());
 
-		FlowMessageHandler flowMessageHandler = new FlowMessageHandler(flowInputChannel, flow.getFlowOutputChannel(), timeout);
-		
+		FlowMessageHandler flowMessageHandler = new FlowMessageHandler(flowInputChannel, flow.getFlowOutputChannel(),
+				timeout);
+
 		flowMessageHandler.setErrorChannel(this.errorChannel);
-		
+
 		return flowMessageHandler;
 	}
 
@@ -71,8 +71,9 @@ public class FlowMessageHandlerFactoryBean extends AbstractSimpleMessageHandlerF
 
 	/**
 	 * 
-	 * @param inputPortName the flow input port associated with the handler. If not set
-	 * and the flow defines only one input port, that will be used by default.
+	 * @param inputPortName the flow input port associated with the handler. If
+	 * not set and the flow defines only one input port, that will be used by
+	 * default.
 	 */
 	public void setInputPortName(String inputPortName) {
 		this.inputPortName = inputPortName;
@@ -85,7 +86,7 @@ public class FlowMessageHandlerFactoryBean extends AbstractSimpleMessageHandlerF
 	public void setTimeout(long timeout) {
 		this.timeout = timeout;
 	}
-	
+
 	/**
 	 * 
 	 * @param errorChannel
@@ -94,21 +95,19 @@ public class FlowMessageHandlerFactoryBean extends AbstractSimpleMessageHandlerF
 		this.errorChannel = errorChannel;
 	}
 
-  
-    @Override
-    public void afterPropertiesSet() throws Exception {
-       this.flowConfiguration = null;
-        if (this.inputPortName == null){
-           Assert.isTrue(!(this.flow.getFlowConfiguration().getPortConfigurations().size() > 1),
-                   "flow [" + this.flow.getBeanName() +"] exposes multiple port configurations. Must specify an input port");
-          
-            this.flowConfiguration = this.flow.getFlowConfiguration().getPortConfigurations().get(0);
-            this.inputPortName = this.flowConfiguration.getInputPortName();
-        } 
-        else {
-           this.flowConfiguration = this.flow.getFlowConfiguration().getConfigurationForInputPort(
-                this.inputPortName);
-        }
-    }
+	public void afterPropertiesSet() throws Exception {
+		this.flowConfiguration = null;
+		if (this.inputPortName == null) {
+			Assert.isTrue(!(this.flow.getFlowConfiguration().getPortConfigurations().size() > 1),
+					"flow [" + this.flow.getBeanName()
+							+ "] exposes multiple port configurations. Must specify an input port");
+
+			this.flowConfiguration = this.flow.getFlowConfiguration().getPortConfigurations().get(0);
+			this.inputPortName = this.flowConfiguration.getInputPortName();
+		}
+		else {
+			this.flowConfiguration = this.flow.getFlowConfiguration().getConfigurationForInputPort(this.inputPortName);
+		}
+	}
 
 }

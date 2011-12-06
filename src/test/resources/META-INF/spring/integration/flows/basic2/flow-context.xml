@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:int-flow="http://www.springframework.org/schema/integration/flow"
+    xmlns:int="http://www.springframework.org/schema/integration"
+    xsi:schemaLocation="http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration-2.1.xsd
+		http://www.springframework.org/schema/integration/flow http://www.springframework.org/schema/integration/flow/spring-integration-flow-2.1.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    
+    <int-flow:flow-configuration>
+     <int-flow:port-mapping input-channel="basic2.inputChannel" output-channel="basic2.outputChannel"/>
+    </int-flow:flow-configuration>
+    
+    <int:bridge input-channel="basic2.inputChannel" output-channel="basic2.outputChannel"/>
+    
+    <int:channel id="basic2.outputChannel"/>
+    <int:channel id="basic2.inputChannel"/>
+</beans>

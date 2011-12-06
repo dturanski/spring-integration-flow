@@ -16,8 +16,12 @@
 	</logger>
 	
 	<logger name="org.springframework.integration">
-		<level value="warn" />
+		<level value="info" />
 	</logger>
+    
+    <logger name="org.springframework.integration.flow">
+        <level value="debug" />
+    </logger>
 
 	<!-- Root Logger -->
 	<root>

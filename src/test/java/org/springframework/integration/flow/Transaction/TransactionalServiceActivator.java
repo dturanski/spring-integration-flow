@@ -30,7 +30,6 @@ public class TransactionalServiceActivator implements RequestReplyExchanger {
 	/* (non-Javadoc)
 	 * @see org.springframework.integration.gateway.RequestReplyExchanger#exchange(org.springframework.integration.Message)
 	 */
-	@Override
 	public Message<?> exchange(Message<?> request) {
 		return gateway.exchange(request);
 	}
