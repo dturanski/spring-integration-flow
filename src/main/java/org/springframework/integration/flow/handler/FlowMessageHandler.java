@@ -86,12 +86,11 @@ public class FlowMessageHandler extends AbstractReplyProducingMessageHandler {
 	@Override
 	protected Object handleRequestMessage(Message<?> requestMessage) {
 
-		UUID conversationId = requestMessage.getHeaders().getId();
-		Map<String, Object> flowConversationIdHeader = Collections.singletonMap(
-				FlowConstants.FLOW_CONVERSATION_ID_HEADER, (Object) conversationId);
+		String conversationId = this.toString();
+		Map<String, String> flowConversationIdHeader = Collections.singletonMap(
+				FlowConstants.FLOW_CONVERSATION_ID_HEADER, this.toString());
 
 		Message<?> message = MessageBuilder.fromMessage(requestMessage).copyHeaders(flowConversationIdHeader)
-
 		.build();
 
 		try {
@@ -123,11 +122,11 @@ public class FlowMessageHandler extends AbstractReplyProducingMessageHandler {
 	 * Internal MessageHandler for the flow response
 	 */
 	private static class ResponseMessageHandler implements MessageHandler {
-		private final UUID conversationId;
+		private final String conversationId;
 
 		private volatile Message<?> response;
 
-		public ResponseMessageHandler(UUID conversationId) {
+		public ResponseMessageHandler(String conversationId) {
 			this.conversationId = conversationId;
 		}
 
