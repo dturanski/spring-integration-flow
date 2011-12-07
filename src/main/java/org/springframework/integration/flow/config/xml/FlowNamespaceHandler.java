@@ -24,11 +24,10 @@ import org.springframework.integration.config.xml.AbstractIntegrationNamespaceHa
  */
 public class FlowNamespaceHandler extends AbstractIntegrationNamespaceHandler {
 
-	@Override
 	public void init() {
 		registerBeanDefinitionParser("flow", new FlowParser());
 		registerBeanDefinitionParser("outbound-gateway", new FlowOutboundGatewayParser());
 		registerBeanDefinitionParser("flow-configuration", new FlowConfigurationParser());
- 	}
+	}
 
 }

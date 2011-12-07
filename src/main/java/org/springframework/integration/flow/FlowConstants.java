@@ -24,11 +24,6 @@ public interface FlowConstants {
 	public static final String FLOW_OUTPUT_PORT_HEADER = "flow.output.port";
 	
 	/**
-	 * Message header used to correlate port input and output messages
-	 */
-	public static final String FLOW_CONVERSATION_ID_HEADER = "flow.conversation.id";
-	
-	/**
 	 * FLOW_OUTPUT_PORT_HEADER value if FlowHandler catches an exception
 	 */
 	public static final String FLOW_HANDLER_EXCEPTION_HEADER_VALUE = "flowhandler.exception";

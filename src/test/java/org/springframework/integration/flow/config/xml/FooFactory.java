@@ -6,7 +6,7 @@ public class FooFactory implements FactoryBean<Foo>{
 
 	@Autowired 
 	Bar bar;
-	@Override
+	 
 	public Foo getObject() throws Exception {
 		// TODO Auto-generated method stub
 		Foo foo = new Foo();
@@ -14,13 +14,13 @@ public class FooFactory implements FactoryBean<Foo>{
 		return foo;
 	}
 
-	@Override
+ 
 	public Class<?> getObjectType() {
 		// TODO Auto-generated method stub
 		return Foo.class;
 	}
 
-	@Override
+ 
 	public boolean isSingleton() {
 		// TODO Auto-generated method stub
 		return true;

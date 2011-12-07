@@ -12,16 +12,13 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.springframework.beans.factory.support.BeanDefinitionValidationException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.core.env.MutablePropertySources;
-import org.springframework.core.env.PropertiesPropertySource;
-import org.springframework.core.env.PropertySource;
 import org.springframework.integration.MessageChannel;
 import org.springframework.integration.channel.AbstractMessageChannel;
-import org.springframework.integration.channel.PublishSubscribeChannel;
 import org.springframework.integration.core.SubscribableChannel;
 import org.springframework.integration.flow.config.FlowUtils;
 import org.springframework.integration.flow.interceptor.FlowInterceptor;
@@ -101,7 +98,6 @@ public class Flow implements InitializingBean, BeanNameAware, ChannelResolver, A
 		this.configLocations = configLocations;
 	}
 
-	@Override
 	public void afterPropertiesSet() {
 
 		if (this.flowId == null) {
@@ -157,7 +153,6 @@ public class Flow implements InitializingBean, BeanNameAware, ChannelResolver, A
 		return this.flowConfiguration;
 	}
 
-	@Override
 	public void setBeanName(String name) {
 		this.beanName = name;
 
@@ -221,20 +216,18 @@ public class Flow implements InitializingBean, BeanNameAware, ChannelResolver, A
 	 * @param the publish-subscribe channel
 	 */
 	public void setFlowOutputChannel(SubscribableChannel flowOutputChannel) {
-		this.flowOutputChannel =  flowOutputChannel;
+		this.flowOutputChannel = flowOutputChannel;
 	}
 
-	@Override
 	public MessageChannel resolveChannelName(String channelName) {
 		return flowChannelResolver.resolveChannelName(channelName);
 	}
 
 	private void addReferencedProperties() {
 		if (flowProperties != null) {
-			PropertySource<?> propertySource = new PropertiesPropertySource("flowProperties", flowProperties);
-
-			MutablePropertySources propertySources = flowContext.getEnvironment().getPropertySources();
-			propertySources.addLast(propertySource);
+			PropertyPlaceholderConfigurer ppc = new PropertyPlaceholderConfigurer();
+			ppc.setProperties(flowProperties);
+			flowContext.addBeanFactoryPostProcessor(ppc);
 		}
 	}
 
@@ -284,7 +277,6 @@ public class Flow implements InitializingBean, BeanNameAware, ChannelResolver, A
 		}
 	}
 
-	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
 		this.applicationContext = applicationContext;
 	}

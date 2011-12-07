@@ -30,7 +30,7 @@ import org.springframework.integration.support.MessageBuilder;
 /**
  * A ChannelInterceptor to set the Flow output port header
  * @see FlowUtils
- *
+ * 
  * @author David Turanski
  * 
  */
@@ -39,7 +39,7 @@ public class FlowInterceptor extends ChannelInterceptorAdapter {
 
 	private final String portName;
 
-	/**	 
+	/**
 	 * @param portName the value of the message header
 	 */
 	public FlowInterceptor(String portName) {
@@ -48,11 +48,13 @@ public class FlowInterceptor extends ChannelInterceptorAdapter {
 
 	@Override
 	public Message<?> preSend(Message<?> message, MessageChannel channel) {
-
-		log.debug("flow interceptor " + this.hashCode() + " received a message from port " + portName + " on channel "
-				+ channel);
-		Map<String, Object> headersToCopy = Collections.singletonMap(FlowConstants.FLOW_OUTPUT_PORT_HEADER, (Object) portName);
-		return MessageBuilder.fromMessage(message).copyHeadersIfAbsent(headersToCopy).build();
-
+		if (log.isDebugEnabled()) {
+			log.debug(this + " received a message from port " + portName + " on channel " + channel);
+		}
+		
+		Map<String, Object> headersToCopy = Collections.singletonMap(FlowConstants.FLOW_OUTPUT_PORT_HEADER,
+				(Object) portName);
+		
+		return MessageBuilder.fromMessage(message).copyHeaders(headersToCopy).build();
 	}
 }

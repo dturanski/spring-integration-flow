@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:int-flow="http://www.springframework.org/schema/integration/flow"
+    xmlns:int="http://www.springframework.org/schema/integration"
+    xsi:schemaLocation="http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration-2.1.xsd
+		http://www.springframework.org/schema/integration/flow http://www.springframework.org/schema/integration/flow/spring-integration-flow-2.1.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <int-flow:flow-configuration>
+     <int-flow:port-mapping input-channel="nested.inputChannel" output-channel="nested.outputChannel"/>
+    </int-flow:flow-configuration>
+    
+    <int-flow:flow id="basic1"/>
+    <int-flow:flow id="basic2"/>
+    
+     
+    <int-flow:outbound-gateway flow="basic1" input-channel="nested.inputChannel"
+     output-channel="basic2.in"/>
+     
+     <int-flow:outbound-gateway flow="basic2" input-channel="basic2.in"
+     output-channel="nested.outputChannel"/>
+    
+     <int:channel id="nested.outputChannel"/>
+</beans>
