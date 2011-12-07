@@ -20,7 +20,7 @@
 	</logger>
     
     <logger name="org.springframework.integration.flow">
-        <level value="debug" />
+        <level value="info" />
     </logger>
 
 	<!-- Root Logger -->

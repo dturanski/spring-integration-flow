@@ -16,7 +16,6 @@
 package org.springframework.integration.flow.handler;
 
 import java.util.Collections;
-import java.util.Map;
 import java.util.UUID;
 
 import org.apache.commons.logging.Log;
@@ -85,16 +84,11 @@ public class FlowMessageHandler extends AbstractReplyProducingMessageHandler {
 
 	@Override
 	protected Object handleRequestMessage(Message<?> requestMessage) {
-
-	    Message<?> message = requestMessage;
-	    UUID conversationId = (UUID) message.getHeaders().get(FlowConstants.FLOW_CONVERSATION_ID_HEADER);
-		if (conversationId == null) {
-			conversationId = requestMessage.getHeaders().getId();
-			Map<String, Object> flowConversationIdHeader = Collections.singletonMap(
-					FlowConstants.FLOW_CONVERSATION_ID_HEADER, (Object) conversationId);
-			message = MessageBuilder.fromMessage(requestMessage).copyHeaders(flowConversationIdHeader).build();
-		} 
-		
+		  UUID conversationId = requestMessage.getHeaders().getId();
+	   	  Message<?> message = MessageBuilder
+	   			  .fromMessage(requestMessage)
+	   			  .pushSequenceDetails(conversationId, 0, 0)
+	   			  .build();
 		try {
 
 			ResponseMessageHandler responseMessageHandler = new ResponseMessageHandler(conversationId);
@@ -105,8 +99,9 @@ public class FlowMessageHandler extends AbstractReplyProducingMessageHandler {
 		}
 		catch (MessagingException me) {
 			log.error(me.getMessage(), me);
+		 
 			if (conversationId
-					.equals(me.getFailedMessage().getHeaders().get(FlowConstants.FLOW_CONVERSATION_ID_HEADER))) {
+					.equals(me.getFailedMessage().getHeaders().getCorrelationId())) {
 				if (errorChannel != null) {
 					errorChannel.send(new ErrorMessage(me, Collections.singletonMap(
 							FlowConstants.FLOW_OUTPUT_PORT_HEADER,
@@ -141,9 +136,18 @@ public class FlowMessageHandler extends AbstractReplyProducingMessageHandler {
 		 * (org.springframework.integration.Message)
 		 */
 		public void handleMessage(Message<?> message) throws MessagingException {
-    
-			if (conversationId.equals(message.getHeaders().get(FlowConstants.FLOW_CONVERSATION_ID_HEADER))) {
-				this.response = message;
+            if(log.isDebugEnabled()){
+            	log.debug("handling flow response message with conversation Id " + message.getHeaders().getCorrelationId() + 
+            			". Target conversation Id = " + this.conversationId + " match = " + 
+            			conversationId.equals(message.getHeaders().getCorrelationId())
+            		);
+            }
+			if (conversationId.equals(message.getHeaders().getCorrelationId())) {
+				this.response = MessageBuilder.fromMessage(message).popSequenceDetails().build();
+				  if(log.isDebugEnabled()){
+		            	log.debug("set flow response message " + this.response  
+		            	);
+		            }
 			}
 			else {
 				
@@ -154,7 +158,7 @@ public class FlowMessageHandler extends AbstractReplyProducingMessageHandler {
 				if (message instanceof ErrorMessage) {
 					MessagingException me = (MessagingException) message.getPayload();
 					if (conversationId.equals(me.getFailedMessage().getHeaders()
-							.get(FlowConstants.FLOW_CONVERSATION_ID_HEADER))) {
+							.getCorrelationId())) {
 						this.response = message;
 					}
 				}
