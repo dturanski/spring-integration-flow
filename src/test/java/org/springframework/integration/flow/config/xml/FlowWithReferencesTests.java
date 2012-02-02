@@ -21,7 +21,7 @@ import org.junit.runner.RunWith;
 import org.springframework.integration.Message;
 import org.springframework.integration.test.support.MessageValidator;
 import org.springframework.integration.test.support.RequestResponseScenario;
-import org.springframework.integration.test.support.SingleRequestResponseScenarioTest;
+import org.springframework.integration.test.support.SingleRequestResponseScenarioTests;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  
@@ -32,7 +32,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
-public class FlowWithReferencesTests extends SingleRequestResponseScenarioTest { 
+public class FlowWithReferencesTests extends SingleRequestResponseScenarioTests { 
 
 /* (non-Javadoc)
  * @see org.springframework.integration.test.support.SingleRequestResponseScenarioTest#defineRequestResponseScenario()

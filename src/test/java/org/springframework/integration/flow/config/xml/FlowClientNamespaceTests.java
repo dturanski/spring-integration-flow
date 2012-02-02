@@ -27,7 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.integration.Message;
 import org.springframework.integration.flow.Flow;
-import org.springframework.integration.test.support.AbstractRequestResponseScenarioTest;
+import org.springframework.integration.test.support.AbstractRequestResponseScenarioTests;
 import org.springframework.integration.test.support.MessageValidator;
 import org.springframework.integration.test.support.RequestResponseScenario;
 import org.springframework.test.context.ContextConfiguration;
@@ -40,7 +40,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
-public class FlowClientNamespaceTests extends AbstractRequestResponseScenarioTest {
+public class FlowClientNamespaceTests extends AbstractRequestResponseScenarioTests {
 
 	@Autowired
 	@Qualifier("flowWithProps")
