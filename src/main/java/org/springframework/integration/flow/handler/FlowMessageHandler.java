@@ -91,7 +91,9 @@ public class FlowMessageHandler extends AbstractReplyProducingMessageHandler {
 
 			ResponseMessageHandler responseMessageHandler = new ResponseMessageHandler(conversationId);
 			flowOutputChannel.subscribe(responseMessageHandler);
-			flowInputChannel.send(message, timeout);
+			flowInputChannel.send(message, timeout);	
+			flowOutputChannel.unsubscribe(responseMessageHandler);
+		 
 			return responseMessageHandler.getResponse();
 
 		}
