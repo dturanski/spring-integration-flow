@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.springframework.integration</groupId>
   <artifactId>spring-integration-flow</artifactId>
-  <version>1.0.0.SNAPSHOT-BUILD</version>
+  <version>1.0.0.BUILD-SNAPSHOT</version>
   <name>Spring Integration Flow Support</name>
   <properties>
     <spring.version>3.2.2.RELEASE</spring.version>
