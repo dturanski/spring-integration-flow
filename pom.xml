@@ -4,11 +4,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.springframework.integration</groupId>
   <artifactId>spring-integration-flow</artifactId>
-  <version>2.1.0.M1</version>
+  <version>1.0.0.SNAPSHOT-BUILD</version>
   <name>Spring Integration Flow Support</name>
   <properties>
-    <spring.version>3.1.0.RELEASE</spring.version>
-    <spring.integration.version>2.1.0.RELEASE</spring.integration.version>
+    <spring.version>3.2.2.RELEASE</spring.version>
+    <spring.integration.version>3.0.0.BUILD-SNAPSHOT</spring.integration.version>
     <project.build.sourceEncoding>UTF8</project.build.sourceEncoding>
   </properties>
   <licenses>
@@ -76,20 +76,16 @@
   </build>
   <repositories>
     <repository>
-      <id>SpringSource External Bundle Repository</id>
-      <url>http://repository.springsource.com/maven/bundles/external/</url>
+      <id>SpringSource Plugin Repository</id>
+      <url>http://repo.springsource.org/plugins-release</url>
     </repository>
     <repository>
       <id>SpringSource Milestone Repository</id>
-      <url>http://maven.springframework.org/milestone/</url>
+      <url>http://repo.springsource.org/libs-milestone</url>
     </repository>
     <repository>
-      <id>SpringSource Release Bundle Repository</id>
-      <url>http://repository.springsource.com/maven/bundles/release/</url>
-    </repository>
-    <repository>
-      <id>SpringSource Release Repository</id>
-      <url>http://maven.springframework.org/release/</url>
+      <id>SpringSource Snapshot Repository</id>
+      <url>http://repo.springsource.org/libs-snapshot</url>
     </repository>
   </repositories>
   <dependencies>
